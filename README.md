@@ -8,41 +8,51 @@ It leverages **Google Gemini API** (or OpenAI API) to analyze job requirements, 
 ## 🚀 Features
 
 ✅ **Resume Upload (PDF/Text)**
-- Upload your resume for instant analysis and parsing.  
+
+- Upload your resume for instant analysis and parsing.
 
 ✅ **Job Description Input**
-- Paste any job description to let AI understand the target role.  
+
+- Paste any job description to let AI understand the target role.
 
 ✅ **AI Tailoring**
-- Generates optimized suggestions and keyword improvements.  
-- Provides an AI-written cover letter aligned with the job.  
+
+- Generates optimized suggestions and keyword improvements.
+- Provides an AI-written cover letter aligned with the job.
 
 ✅ **Keyword Match Score**
-- Displays a match percentage between your resume and the JD.  
+
+- Displays a match percentage between your resume and the JD.
 
 ✅ **Editable Output**
-- Users can copy, edit, or download tailored results easily.  
+
+- Users can copy, edit, or download tailored results easily.
 
 ✅ **History & Save (optional)**
+
 - Stores past sessions for logged-in users via Firebase.
 
 ---
 
 ## 🏗️ Tech Stack
 
-**Frontend:**  
-- React.js / Next.js  
-- Tailwind CSS (for UI)  
+**Frontend:**
 
-**Backend:**  
-- Node.js + Express  
-- Google Gemini API (or OpenAI GPT API)  
+- React.js / Next.js
+- Tailwind CSS (for UI)
 
-**Database & Auth:**  
-- Firebase / MongoDB  
+**Backend:**
 
-**Deployment:**  
-- Vercel (Frontend)  
+- Node.js + Express
+- Google Gemini API (or OpenAI GPT API)
+
+**Database & Auth:**
+
+- Firebase / MongoDB
+
+**Deployment:**
+
+- Vercel (Frontend)
 - Render / Railway (Backend)
 
 ---
