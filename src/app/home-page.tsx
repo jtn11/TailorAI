@@ -10,9 +10,11 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const LandingPage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
@@ -55,13 +57,14 @@ const LandingPage: React.FC = () => {
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
               <button
-                // onClick={() => openAuthModal('signin')}
+                onClick={() => router.push("/signin")}
                 className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
               >
                 Sign In
               </button>
+
               <button
-                // onClick={() => openAuthModal('signup')}
+                onClick={() => router.push("/signup")}
                 className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition font-medium"
               >
                 Sign Up
