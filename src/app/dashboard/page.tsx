@@ -1,5 +1,5 @@
-import Dashboard from "./dasboard-page";
+import AnalysisDashboard from "./dasboard-page";
 
 export default function dashboard() {
-  return <Dashboard />;
+  return <AnalysisDashboard />;
 }

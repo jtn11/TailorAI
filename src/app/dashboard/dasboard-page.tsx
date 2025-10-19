@@ -1,393 +1,499 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Menu,
-  X,
-  LogOut,
-  Plus,
-  FileText,
-  BarChart3,
-  Settings,
-  Home,
   Zap,
+  LogOut,
+  FileText,
   Upload,
   Trash2,
-  Eye,
-  ChevronRight,
+  Copy,
+  Download,
+  CheckCircle,
+  AlertCircle,
+  Menu,
+  X,
+  Plus,
+  Clock,
 } from "lucide-react";
 
-interface Resume {
-  id: number;
-  jobTitle: string;
+interface AnalysisResult {
   matchScore: number;
-  date: string;
-  status: "good" | "average" | "poor";
+  missingKeywords: string[];
+  missingSkills: string[];
+  suggestions: string[];
+  coverLetter?: string;
 }
 
-const Dashboard: React.FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "resumes" | "analyze"
-  >("overview");
-  const [resumes, setResumes] = useState<Resume[]>([
+interface HistoryThread {
+  id: number;
+  jobTitle: string;
+  date: string;
+  score: number;
+}
+
+const AnalysisDashboard: React.FC = () => {
+  const [fileName, setFileName] = useState<string>("");
+  const [jobDescription, setJobDescription] = useState<string>("");
+  const [generateCoverLetter, setGenerateCoverLetter] =
+    useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
+
+  const [historyThreads, setHistoryThreads] = useState<HistoryThread[]>([
     {
       id: 1,
       jobTitle: "Senior React Developer",
-      matchScore: 85,
       date: "2024-10-15",
-      status: "good",
+      score: 85,
     },
-    {
-      id: 2,
-      jobTitle: "Full Stack Engineer",
-      matchScore: 72,
-      date: "2024-10-14",
-      status: "average",
-    },
-    {
-      id: 3,
-      jobTitle: "Frontend Engineer",
-      matchScore: 58,
-      date: "2024-10-13",
-      status: "poor",
-    },
+    { id: 2, jobTitle: "Full Stack Engineer", date: "2024-10-14", score: 72 },
+    { id: 3, jobTitle: "Frontend Engineer", date: "2024-10-13", score: 58 },
+    { id: 4, jobTitle: "Product Manager", date: "2024-10-12", score: 92 },
+    { id: 5, jobTitle: "DevOps Engineer", date: "2024-10-11", score: 68 },
   ]);
 
-  const deleteResume = (id: number) => {
-    setResumes(resumes.filter((r) => r.id !== id));
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 75) return "text-green-400";
-    if (score >= 50) return "text-yellow-400";
-    return "text-red-400";
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 75) return "bg-green-900 bg-opacity-30";
-    if (score >= 50) return "bg-yellow-900 bg-opacity-30";
-    return "bg-red-900 bg-opacity-30";
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "good":
-        return "bg-green-900 bg-opacity-40 text-green-300 border-green-700";
-      case "average":
-        return "bg-yellow-900 bg-opacity-40 text-yellow-300 border-yellow-700";
-      case "poor":
-        return "bg-red-900 bg-opacity-40 text-red-300 border-red-700";
-      default:
-        return "bg-slate-700";
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFileName(e.target.files[0].name);
     }
   };
 
+  const handleAnalyze = async () => {
+    if (!fileName || !jobDescription.trim()) {
+      alert("Please upload a resume and enter a job description");
+      return;
+    }
+
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const mockResult: AnalysisResult = {
+      matchScore: 78,
+      missingKeywords: [
+        "Machine Learning",
+        "Cloud Architecture",
+        "DevOps",
+        "Docker",
+        "Kubernetes",
+        "CI/CD Pipeline",
+        "Microservices",
+        "API Design",
+      ],
+      missingSkills: [
+        "Advanced System Design",
+        "Leadership and Team Management",
+        "Technical Writing and Documentation",
+        "Performance Optimization",
+        "Security Best Practices",
+      ],
+      suggestions: [
+        "Add specific keywords from the job posting that match your experience",
+        "Highlight quantifiable achievements and metrics in your work experience",
+        "Include specific projects that demonstrate your technical expertise",
+        "Use the exact terminology from the job posting in your resume",
+        "Add a professional summary that aligns with the job requirements",
+        "Demonstrate your experience with cloud technologies and modern development practices",
+        "Include examples of collaborative projects and team leadership",
+      ],
+      coverLetter: generateCoverLetter
+        ? `Dear Hiring Manager,
+
+I am writing to express my strong interest in the Software Engineer position at your esteemed organization. With my comprehensive background in full-stack development, cloud architecture, and leading cross-functional teams, I am confident in my ability to make significant contributions to your team.
+
+Throughout my career, I have demonstrated expertise in building scalable applications using modern technologies including React, Node.js, and AWS. My experience includes designing and implementing microservices architectures, establishing CI/CD pipelines, and mentoring junior developers.
+
+I would welcome the opportunity to discuss how my skills and experience can contribute to your team's success.
+
+Best regards,
+[Your Name]`
+        : undefined,
+    };
+
+    setAnalysis(mockResult);
+    setLoading(false);
+  };
+
+  const handleCopy = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleReset = () => {
+    setFileName("");
+    setJobDescription("");
+    setAnalysis(null);
+    setGenerateCoverLetter(false);
+    setCurrentThreadId(null);
+  };
+
+  const handleLoadThread = (thread: HistoryThread) => {
+    setCurrentThreadId(thread.id);
+  };
+
+  const handleDeleteThread = (id: number) => {
+    setHistoryThreads(historyThreads.filter((t) => t.id !== id));
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 opacity-10 rounded-full blur-3xl"></div>
+
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 transition-all duration-300 ${sidebarOpen ? "w-64" : "w-20"} z-40`}
+        className={`fixed left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 transition-all duration-300 z-40 overflow-hidden ${sidebarOpen ? "w-72" : "w-0"}`}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-between h-20 px-4 border-b border-slate-700">
-          {sidebarOpen && (
-            <div className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-2 rounded-lg">
-                <Zap className="w-5 h-5 text-white" />
+        <div className="h-full flex flex-col">
+          {/* Sidebar Header */}
+          <div className="h-20 border-b border-slate-700 flex items-center justify-between px-6">
+            <h3 className="text-lg font-bold">History</h3>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="text-gray-400 hover:text-white transition"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* New Analysis Button */}
+          <div className="px-4 py-4 border-b border-slate-700">
+            <button
+              onClick={handleReset}
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition flex items-center justify-center space-x-2"
+            >
+              <Plus size={18} />
+              <span>New Analysis</span>
+            </button>
+          </div>
+
+          {/* History Threads */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+            <p className="text-xs font-semibold text-gray-500 px-2 mb-3">
+              RECENT ANALYSES
+            </p>
+            {historyThreads.map((thread) => (
+              <div
+                key={thread.id}
+                onClick={() => handleLoadThread(thread)}
+                className={`p-3 rounded-lg cursor-pointer transition group ${
+                  currentThreadId === thread.id
+                    ? "bg-blue-600 bg-opacity-30 border border-blue-500"
+                    : "bg-slate-800 hover:bg-slate-700 border border-slate-700"
+                }`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-sm font-medium text-white truncate flex-1 pr-2">
+                    {thread.jobTitle}
+                  </h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteThread(thread.id);
+                    }}
+                    className="text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400 flex items-center space-x-1">
+                    <Clock size={12} />
+                    <span>{thread.date}</span>
+                  </span>
+                  <span
+                    className={`text-xs font-bold ${
+                      thread.score >= 75
+                        ? "text-green-400"
+                        : thread.score >= 50
+                          ? "text-yellow-400"
+                          : "text-red-400"
+                    }`}
+                  >
+                    {thread.score}%
+                  </span>
+                </div>
               </div>
-              <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
-                TailorAI
-              </span>
-            </div>
-          )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-gray-400 hover:text-white transition"
-          >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+            ))}
+          </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-3">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${activeTab === "overview" ? "bg-blue-600 bg-opacity-30 border border-blue-500" : "text-gray-400 hover:text-white"}`}
-          >
-            <Home size={20} />
-            {sidebarOpen && <span>Overview</span>}
-          </button>
-          <button
-            onClick={() => setActiveTab("analyze")}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${activeTab === "analyze" ? "bg-blue-600 bg-opacity-30 border border-blue-500" : "text-gray-400 hover:text-white"}`}
-          >
-            <Upload size={20} />
-            {sidebarOpen && <span>New Analysis</span>}
-          </button>
-          <button
-            onClick={() => setActiveTab("resumes")}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${activeTab === "resumes" ? "bg-blue-600 bg-opacity-30 border border-blue-500" : "text-gray-400 hover:text-white"}`}
-          >
-            <FileText size={20} />
-            {sidebarOpen && <span>My Analyses</span>}
-          </button>
-        </nav>
-
-        {/* Settings & Logout */}
-        <div className="border-t border-slate-700 px-4 py-4 space-y-3">
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition">
-            <Settings size={20} />
-            {sidebarOpen && <span>Settings</span>}
-          </button>
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:text-red-300 rounded-lg transition">
-            <LogOut size={20} />
-            {sidebarOpen && <span>Logout</span>}
-          </button>
+          {/* Sidebar Footer */}
+          <div className="border-t border-slate-700 p-4">
+            <button className="w-full flex items-center space-x-2 text-red-400 hover:text-red-300 transition font-medium">
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main
-        className={`transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-20"}`}
-      >
-        {/* Top Bar */}
-        <div className="h-20 bg-slate-800 bg-opacity-50 backdrop-blur border-b border-slate-700 flex items-center justify-between px-8">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold">JD</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-8">
-          {/* Overview Tab */}
-          {activeTab === "overview" && (
-            <div className="space-y-8">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 text-sm font-medium">
-                      Total Analyses
-                    </h3>
-                    <BarChart3 className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <p className="text-4xl font-bold">12</p>
-                  <p className="text-gray-500 text-sm mt-2">This month</p>
-                </div>
-
-                <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 text-sm font-medium">
-                      Average Match Score
-                    </h3>
-                    <Zap className="w-5 h-5 text-cyan-400" />
-                  </div>
-                  <p className="text-4xl font-bold">
-                    71<span className="text-2xl">%</span>
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Up from last month
-                  </p>
-                </div>
-
-                <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 text-sm font-medium">
-                      Best Score
-                    </h3>
-                    <FileText className="w-5 h-5 text-green-400" />
-                  </div>
-                  <p className="text-4xl font-bold">
-                    85<span className="text-2xl">%</span>
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Senior React Developer
-                  </p>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold">Recent Analyses</h2>
-                  <button className="text-blue-400 hover:text-blue-300 transition flex items-center space-x-1">
-                    <span>View All</span>
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {resumes.slice(0, 3).map((resume) => (
-                    <div
-                      key={resume.id}
-                      className="flex items-center justify-between p-4 bg-slate-900 bg-opacity-50 rounded-lg border border-slate-700 hover:border-slate-600 transition"
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{resume.jobTitle}</p>
-                        <p className="text-sm text-gray-500">{resume.date}</p>
-                      </div>
-                      <div
-                        className={`text-2xl font-bold ${getScoreColor(resume.matchScore)}`}
-                      >
-                        {resume.matchScore}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quick Action */}
+      <main className="flex-1 transition-all duration-300">
+        {/* Header */}
+        <header className="bg-slate-800 bg-opacity-50 backdrop-blur border-b border-slate-700">
+          <div className="px-6 py-6 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <button
-                onClick={() => setActiveTab("analyze")}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition flex items-center justify-center space-x-2"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="text-gray-400 hover:text-white transition"
               >
-                <Plus size={20} />
-                <span>Start New Analysis</span>
+                <Menu size={24} />
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-2 rounded-lg">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
+                  TailorAI
+                </h1>
+              </div>
+            </div>
+            <button className="hidden md:flex items-center space-x-2 px-4 py-2 text-red-400 hover:text-red-300 transition">
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-2">Resume Analyzer</h2>
+            <p className="text-gray-400 text-lg">
+              Upload your resume and job description to get instant analysis
+            </p>
+          </div>
+
+          {!analysis ? (
+            // Input Section
+            <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                {/* Resume Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Upload Resume (PDF)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      id="resume-upload"
+                      onChange={handleFileChange}
+                    />
+                    <label
+                      htmlFor="resume-upload"
+                      className={`flex flex-col items-center justify-center h-56 border-2 border-dashed rounded-xl cursor-pointer transition ${
+                        fileName
+                          ? "border-green-500 bg-green-900 bg-opacity-10"
+                          : "border-slate-600 bg-slate-900 hover:border-blue-500"
+                      }`}
+                    >
+                      <FileText
+                        className={`w-12 h-12 mb-3 ${fileName ? "text-green-400" : "text-gray-500"}`}
+                      />
+                      {fileName ? (
+                        <>
+                          <p className="text-green-400 font-semibold">
+                            {fileName}
+                          </p>
+                          <p className="text-gray-400 text-sm mt-1">
+                            ✓ File selected
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-gray-400 font-medium">
+                            Click to upload PDF
+                          </p>
+                          <p className="text-gray-500 text-sm mt-1">
+                            or drag and drop
+                          </p>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Job Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
+                    Job Description
+                  </label>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    placeholder="Paste the job description here..."
+                    className="w-full h-56 bg-slate-900 text-white placeholder-gray-500 p-4 rounded-xl border border-slate-600 focus:border-blue-500 focus:outline-none transition resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Generate Cover Letter Option */}
+              <div className="flex items-center space-x-3 mb-8">
+                <label className="flex items-center space-x-3 text-gray-300 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={generateCoverLetter}
+                    onChange={(e) => setGenerateCoverLetter(e.target.checked)}
+                    className="w-5 h-5 rounded border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="group-hover:text-white transition">
+                    Generate cover letter
+                  </span>
+                </label>
+              </div>
+
+              {/* Analyze Button */}
+              <button
+                onClick={handleAnalyze}
+                disabled={loading}
+                className={`w-full py-4 rounded-lg font-semibold text-lg transition flex items-center justify-center space-x-2 ${
+                  loading
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload size={20} />
+                    <span>Analyze Resume</span>
+                  </>
+                )}
               </button>
             </div>
-          )}
-
-          {/* Analyze Tab */}
-          {activeTab === "analyze" && (
-            <div className="max-w-4xl">
-              <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-8">
-                <h2 className="text-2xl font-bold mb-6">Analyze Your Resume</h2>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                  {/* Resume Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-3">
-                      Upload Resume (PDF)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        className="hidden"
-                        id="resume-upload"
-                      />
-                      <label
-                        htmlFor="resume-upload"
-                        className="flex flex-col items-center justify-center h-64 bg-slate-900 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-blue-500 transition"
-                      >
-                        <FileText className="w-12 h-12 text-gray-500 mb-2" />
-                        <p className="text-gray-400 font-medium">
-                          Click to upload PDF
-                        </p>
-                        <p className="text-gray-500 text-sm">
-                          or drag and drop
-                        </p>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Job Posting Input */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-3">
-                      Job Posting
-                    </label>
-                    <textarea
-                      placeholder="Paste the job posting here..."
-                      className="w-full h-64 bg-slate-900 text-white placeholder-gray-500 p-4 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none transition resize-none"
-                    />
-                  </div>
+          ) : (
+            // Results Section
+            <div className="space-y-8 animate-in fade-in">
+              {/* Match Score Card */}
+              <div className="bg-gradient-to-r from-blue-900 to-cyan-900 border border-blue-700 rounded-2xl p-8 text-center">
+                <p className="text-gray-300 text-lg mb-2">
+                  Overall Match Score
+                </p>
+                <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
+                  {analysis.matchScore}%
                 </div>
-
-                <div className="flex items-center space-x-4 mb-6">
-                  <label className="flex items-center space-x-2 text-gray-300 cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 rounded" />
-                    <span>Generate cover letter</span>
-                  </label>
+                <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full transition-all duration-1000"
+                    style={{ width: `${analysis.matchScore}%` }}
+                  ></div>
                 </div>
-
-                <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition">
-                  Analyze Resume
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* My Analyses Tab */}
-          {activeTab === "resumes" && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">My Analyses</h2>
-                <button
-                  onClick={() => setActiveTab("analyze")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition"
-                >
-                  <Plus size={18} />
-                  <span>New Analysis</span>
-                </button>
               </div>
 
-              {resumes.length > 0 ? (
-                <div className="grid gap-4">
-                  {resumes.map((resume) => (
+              {/* Missing Keywords */}
+              <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-red-400" />
+                  <span>
+                    Missing Keywords ({analysis.missingKeywords.length})
+                  </span>
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {analysis.missingKeywords.map((keyword, idx) => (
                     <div
-                      key={resume.id}
-                      className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition"
+                      key={idx}
+                      className="bg-red-900 bg-opacity-30 text-red-300 px-4 py-2 rounded-full text-sm border border-red-700 flex items-center justify-between group hover:bg-opacity-50 transition cursor-pointer"
+                      onClick={() => handleCopy(keyword, idx)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-4 mb-2">
-                            <h3 className="text-lg font-semibold">
-                              {resume.jobTitle}
-                            </h3>
-                            <span
-                              className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadge(resume.status)}`}
-                            >
-                              {resume.status === "good"
-                                ? "✓ Good Match"
-                                : resume.status === "average"
-                                  ? "○ Average"
-                                  : "✗ Needs Work"}
-                            </span>
-                          </div>
-                          <p className="text-gray-500 text-sm">{resume.date}</p>
-                        </div>
-
-                        <div className="flex items-center space-x-6">
-                          <div className={`text-center`}>
-                            <p
-                              className={`text-3xl font-bold ${getScoreColor(resume.matchScore)}`}
-                            >
-                              {resume.matchScore}%
-                            </p>
-                            <p className="text-gray-500 text-xs">Match Score</p>
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <button className="p-2 bg-slate-900 hover:bg-slate-700 rounded-lg transition text-blue-400 hover:text-blue-300">
-                              <Eye size={18} />
-                            </button>
-                            <button
-                              onClick={() => deleteResume(resume.id)}
-                              className="p-2 bg-slate-900 hover:bg-slate-700 rounded-lg transition text-red-400 hover:text-red-300"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                      <span>{keyword}</span>
+                      <Copy className="w-3 h-3 ml-2 opacity-0 group-hover:opacity-100 transition" />
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-12 bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-lg">
-                  <FileText className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400 mb-4">No analyses yet</p>
-                  <button
-                    onClick={() => setActiveTab("analyze")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-                  >
-                    Start Your First Analysis
-                  </button>
+              </div>
+
+              {/* Missing Skills */}
+              <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-400" />
+                  <span>Areas to Improve</span>
+                </h3>
+                <ul className="space-y-3">
+                  {analysis.missingSkills.map((skill, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition"
+                    >
+                      <span className="text-yellow-400 mt-1 flex-shrink-0">
+                        •
+                      </span>
+                      <span className="text-gray-300">{skill}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Recommendations */}
+              <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center space-x-2">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  <span>Recommendations</span>
+                </h3>
+                <ul className="space-y-3">
+                  {analysis.suggestions.map((suggestion, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition group cursor-pointer"
+                    >
+                      <span className="text-green-400 font-bold mt-1 flex-shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="text-gray-300 flex-1">{suggestion}</span>
+                      <Copy
+                        size={16}
+                        className="text-gray-500 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
+                        onClick={() => handleCopy(suggestion, idx)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Cover Letter */}
+              {analysis.coverLetter && (
+                <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
+                  <h3 className="text-xl font-bold mb-4">
+                    Generated Cover Letter
+                  </h3>
+                  <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
+                    <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
+                      {analysis.coverLetter}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleCopy(analysis.coverLetter || "", 0)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2"
+                    >
+                      <Copy size={18} />
+                      <span>
+                        {copiedIndex === 0 ? "Copied!" : "Copy to Clipboard"}
+                      </span>
+                    </button>
+                    <button className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2">
+                      <Download size={18} />
+                      <span>Download</span>
+                    </button>
+                  </div>
                 </div>
               )}
+
+              {/* Reset Button */}
+              <button
+                onClick={handleReset}
+                className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition"
+              >
+                Analyze Another Resume
+              </button>
             </div>
           )}
         </div>
@@ -396,4 +502,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default AnalysisDashboard;
