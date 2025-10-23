@@ -1,23 +1,27 @@
 "use client";
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/context/authcontext";
+import { useRouter } from "next/navigation";
 
 export const Signin: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
 
-  const handleSubmit = () => {
-    console.log("Sign in submitted:", formData);
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await login(email, password);
+      router.push("/dashboard");
+    } catch (error) {
+      console.log("Error logging in", error);
+    }
   };
 
   return (
@@ -42,8 +46,8 @@ export const Signin: React.FC = () => {
                   <input
                     type="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     className="w-full bg-slate-900 text-white placeholder-gray-500 pl-10 pr-4 py-3 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none transition"
                   />
@@ -60,8 +64,8 @@ export const Signin: React.FC = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full bg-slate-900 text-white placeholder-gray-500 pl-10 pr-12 py-3 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none transition"
                   />
