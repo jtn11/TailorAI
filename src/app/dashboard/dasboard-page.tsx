@@ -1,15 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Zap,
-  LogOut,
   FileText,
   Upload,
   Copy,
   Download,
   CheckCircle,
   AlertCircle,
-  Menu,
 } from "lucide-react";
 import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
@@ -121,7 +118,6 @@ Best regards,
       <main className="flex-1 transition-all duration-300">
         <Navbar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
 
-        {/* Content Area */}
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-2">Resume Analyzer</h2>
@@ -131,10 +127,8 @@ Best regards,
           </div>
 
           {!analysis ? (
-            // Input Section
             <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
               <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* Resume Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-4">
                     Upload Resume (PDF)
@@ -195,7 +189,6 @@ Best regards,
                 </div>
               </div>
 
-              {/* Generate Cover Letter Option */}
               <div className="flex items-center space-x-3 mb-8">
                 <label className="flex items-center space-x-3 text-gray-300 cursor-pointer group">
                   <input
@@ -234,9 +227,7 @@ Best regards,
               </button>
             </div>
           ) : (
-            // Results Section
             <div className="space-y-8 animate-in fade-in">
-              {/* Match Score Card */}
               <div className="bg-gradient-to-r from-blue-900 to-cyan-900 border border-blue-700 rounded-2xl p-8 text-center">
                 <p className="text-gray-300 text-lg mb-2">
                   Overall Match Score
