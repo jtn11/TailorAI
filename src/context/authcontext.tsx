@@ -3,17 +3,25 @@ import { app } from "@/firestore/firebase";
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthcontextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => void;
+  isLoggedIn: boolean;
 }
 
 const auth = getAuth(app);
@@ -26,6 +34,9 @@ export const AuthContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [username, setUsername] = useState<string | null>(null);
+
   const router = useRouter();
 
   const login = async (email: string, password: string) => {
@@ -61,8 +72,25 @@ export const AuthContextProvider = ({
     router.push("/signin");
   };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        console.log("userUID", user.uid);
+        console.log(
+          "This is the current user token",
+          (await user.getIdToken()).trim(),
+        );
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const isLoggedIn = currentUser ? true : false;
+
   return (
-    <Authcontext.Provider value={{ login, signup, logout }}>
+    <Authcontext.Provider value={{ login, signup, logout, isLoggedIn }}>
       {children}
     </Authcontext.Provider>
   );
