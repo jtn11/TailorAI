@@ -5,7 +5,7 @@ import { Response } from "express";
 export const analyseDocument = async (req: AuthRequest, res: Response) => {
   const { userId, resume, jobDescription, score, feedback } = req.body;
   try {
-    await db.collection("analyses").add({
+    await db.collection("analysis").add({
       userId,
       resume,
       jobDescription,
