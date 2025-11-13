@@ -30,21 +30,59 @@ export const AnalysedResult = () => {
     setGenerateCoverLetter(false);
   };
 
-  if (!analysis) {
-    return <div>Loading analysis...</div>;
-  }
+  const mockResult = {
+    matchScore: 78,
+    missingKeywords: [
+      "Machine Learning",
+      "Cloud Architecture",
+      "DevOps",
+      "Docker",
+      "Kubernetes",
+      "CI/CD Pipeline",
+      "Microservices",
+      "API Design",
+    ],
+    missingSkills: [
+      "Advanced System Design",
+      "Leadership and Team Management",
+      "Technical Writing and Documentation",
+      "Performance Optimization",
+      "Security Best Practices",
+    ],
+    suggestions: [
+      "Add specific keywords from the job posting that match your experience",
+      "Highlight quantifiable achievements and metrics in your work experience",
+      "Include specific projects that demonstrate your technical expertise",
+      "Use the exact terminology from the job posting in your resume",
+      "Add a professional summary that aligns with the job requirements",
+      "Demonstrate your experience with cloud technologies and modern development practices",
+      "Include examples of collaborative projects and team leadership",
+    ],
+    coverLetter: generateCoverLetter
+      ? `Dear Hiring Manager,
+
+I am writing to express my strong interest in the Software Engineer position at your esteemed organization. With my comprehensive background in full-stack development, cloud architecture, and leading cross-functional teams, I am confident in my ability to make significant contributions to your team.
+
+Throughout my career, I have demonstrated expertise in building scalable applications using modern technologies including React, Node.js, and AWS. My experience includes designing and implementing microservices architectures, establishing CI/CD pipelines, and mentoring junior developers.
+
+I would welcome the opportunity to discuss how my skills and experience can contribute to your team's success.
+
+Best regards,
+[Your Name]`
+      : undefined,
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in">
       <div className="bg-gradient-to-r from-blue-900 to-cyan-900 border border-blue-700 rounded-2xl p-8 text-center">
         <p className="text-gray-300 text-lg mb-2">Overall Match Score</p>
         <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
-          {analysis.matchScore}%
+          {mockResult.matchScore}%
         </div>
         <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
           <div
             className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full transition-all duration-1000"
-            style={{ width: `${analysis.matchScore}%` }}
+            style={{ width: `${analysis && analysis.matchScore}%` }}
           ></div>
         </div>
       </div>
@@ -53,10 +91,10 @@ export const AnalysedResult = () => {
       <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
         <h3 className="text-xl font-bold mb-4 flex items-center space-x-2">
           <AlertCircle className="w-5 h-5 text-red-400" />
-          <span>Missing Keywords ({analysis.missingKeywords.length})</span>
+          <span>Missing Keywords ({mockResult.missingKeywords.length})</span>
         </h3>
         <div className="flex flex-wrap gap-3">
-          {analysis.missingKeywords.map((keyword, idx) => (
+          {mockResult.missingKeywords.map((keyword, idx) => (
             <div
               key={idx}
               className="bg-red-900 bg-opacity-30 text-red-300 px-4 py-2 rounded-full text-sm border border-red-700 flex items-center justify-between group hover:bg-opacity-50 transition cursor-pointer"
@@ -76,7 +114,7 @@ export const AnalysedResult = () => {
           <span>Areas to Improve</span>
         </h3>
         <ul className="space-y-3">
-          {analysis.missingSkills.map((skill, idx) => (
+          {mockResult.missingSkills.map((skill, idx) => (
             <li
               key={idx}
               className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition"
@@ -95,7 +133,7 @@ export const AnalysedResult = () => {
           <span>Recommendations</span>
         </h3>
         <ul className="space-y-3">
-          {analysis.suggestions.map((suggestion, idx) => (
+          {mockResult.suggestions.map((suggestion, idx) => (
             <li
               key={idx}
               className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition group cursor-pointer"
@@ -115,17 +153,17 @@ export const AnalysedResult = () => {
       </div>
 
       {/* Cover Letter */}
-      {analysis.coverLetter && (
+      {mockResult.coverLetter && (
         <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
           <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
           <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
             <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
-              {analysis.coverLetter}
+              {mockResult.coverLetter}
             </p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => handleCopy(analysis.coverLetter || "", 0)}
+              onClick={() => handleCopy(mockResult.coverLetter || "", 0)}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2"
             >
               <Copy size={18} />
