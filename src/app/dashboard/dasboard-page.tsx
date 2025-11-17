@@ -22,21 +22,19 @@ const AnalysisDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [text , setResumeText] = useState<string>("");
-
+  const [text, setResumeText] = useState<string>("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];  // <-- get the uploaded file
+    const file = e.target.files?.[0]; // <-- get the uploaded file
 
-  if (!file) return;
+    if (!file) return;
 
-  setFileName(file.name);
+    setFileName(file.name);
 
-  const extractedText = await extractTextFromPdf(file); 
-  setResumeText(String(extractedText));
-  console.log("extracted text" , extractedText);
-};
- 
+    const extractedText = await extractTextFromPdf(file);
+    setResumeText(String(extractedText));
+    console.log("extracted text", extractedText);
+  };
 
   const handleAnalyze = async () => {
     if (!fileName || !jobDescription.trim()) {
