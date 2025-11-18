@@ -41,54 +41,69 @@ const AnalysisDashboard: React.FC = () => {
       alert("Please upload a resume and enter a job description");
       return;
     }
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: text,
+        }),
+      });
+      const data = await response.json();
+      console.log("Response generated successfully", data);
+    } catch (error) {
+      console.log("fetch error", error);
+    }
 
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // setLoading(true);
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const mockResult: AnalysisResult = {
-      matchScore: 78,
-      missingKeywords: [
-        "Machine Learning",
-        "Cloud Architecture",
-        "DevOps",
-        "Docker",
-        "Kubernetes",
-        "CI/CD Pipeline",
-        "Microservices",
-        "API Design",
-      ],
-      missingSkills: [
-        "Advanced System Design",
-        "Leadership and Team Management",
-        "Technical Writing and Documentation",
-        "Performance Optimization",
-        "Security Best Practices",
-      ],
-      suggestions: [
-        "Add specific keywords from the job posting that match your experience",
-        "Highlight quantifiable achievements and metrics in your work experience",
-        "Include specific projects that demonstrate your technical expertise",
-        "Use the exact terminology from the job posting in your resume",
-        "Add a professional summary that aligns with the job requirements",
-        "Demonstrate your experience with cloud technologies and modern development practices",
-        "Include examples of collaborative projects and team leadership",
-      ],
-      coverLetter: generateCoverLetter
-        ? `Dear Hiring Manager,
+    //     const mockResult: AnalysisResult = {
+    //       matchScore: 78,
+    //       missingKeywords: [
+    //         "Machine Learning",
+    //         "Cloud Architecture",
+    //         "DevOps",
+    //         "Docker",
+    //         "Kubernetes",
+    //         "CI/CD Pipeline",
+    //         "Microservices",
+    //         "API Design",
+    //       ],
+    //       missingSkills: [
+    //         "Advanced System Design",
+    //         "Leadership and Team Management",
+    //         "Technical Writing and Documentation",
+    //         "Performance Optimization",
+    //         "Security Best Practices",
+    //       ],
+    //       suggestions: [
+    //         "Add specific keywords from the job posting that match your experience",
+    //         "Highlight quantifiable achievements and metrics in your work experience",
+    //         "Include specific projects that demonstrate your technical expertise",
+    //         "Use the exact terminology from the job posting in your resume",
+    //         "Add a professional summary that aligns with the job requirements",
+    //         "Demonstrate your experience with cloud technologies and modern development practices",
+    //         "Include examples of collaborative projects and team leadership",
+    //       ],
+    //       coverLetter: generateCoverLetter
+    //         ? `Dear Hiring Manager,
 
-I am writing to express my strong interest in the Software Engineer position at your esteemed organization. With my comprehensive background in full-stack development, cloud architecture, and leading cross-functional teams, I am confident in my ability to make significant contributions to your team.
+    // I am writing to express my strong interest in the Software Engineer position at your esteemed organization. With my comprehensive background in full-stack development, cloud architecture, and leading cross-functional teams, I am confident in my ability to make significant contributions to your team.
 
-Throughout my career, I have demonstrated expertise in building scalable applications using modern technologies including React, Node.js, and AWS. My experience includes designing and implementing microservices architectures, establishing CI/CD pipelines, and mentoring junior developers.
+    // Throughout my career, I have demonstrated expertise in building scalable applications using modern technologies including React, Node.js, and AWS. My experience includes designing and implementing microservices architectures, establishing CI/CD pipelines, and mentoring junior developers.
 
-I would welcome the opportunity to discuss how my skills and experience can contribute to your team's success.
+    // I would welcome the opportunity to discuss how my skills and experience can contribute to your team's success.
 
-Best regards,
-[Your Name]`
-        : undefined,
-    };
+    // Best regards,
+    // [Your Name]`
+    //         : undefined,
+    //     };
 
-    setAnalysis(mockResult);
-    setLoading(false);
+    //     setAnalysis(mockResult);
+    //     setLoading(false);
   };
 
   return (
