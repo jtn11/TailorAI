@@ -184,7 +184,7 @@ const AnalysisDashboard: React.FC = () => {
               </button>
             </div>
           ) : (
-            <AnalysedResult analysis={analysis} />
+            <AnalysedResult analysis={analysis} generateCoverLetter={generateCoverLetter} />
           )}
         </div>
       </main>

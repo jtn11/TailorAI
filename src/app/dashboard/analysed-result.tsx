@@ -10,14 +10,14 @@ interface AnalysisResult {
 }
 
 interface Props {
-  analysis: AnalysisResult;
+  analysis: AnalysisResult,
+  generateCoverLetter: boolean
 }
 
-export const AnalysedResult = ({ analysis }: Props) => {
+export const AnalysedResult = ({ analysis , generateCoverLetter }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   console.log("Data fetched ", analysis);
-  const [generateCoverLetter, setGenerateCoverLetter] =
-    useState<boolean>(false);
+
 
   const handleCopy = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -115,7 +115,7 @@ export const AnalysedResult = ({ analysis }: Props) => {
       </div>
 
       {/* Cover Letter */}
-      {analysis && analysis.coverLetter && (
+      {generateCoverLetter && analysis?.coverLetter && (
         <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
           <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
           <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
