@@ -1,3 +1,4 @@
+"use client";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
 
