@@ -7,7 +7,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export async function POST(req: Request) {
   try {
     console.log("Api hit");
-    const { text } = await req.json();
+    const { text , jobDescription } = await req.json();
     console.log(text);
 
     if (!text) {
@@ -23,7 +23,7 @@ Analyze this resume for a job match.
 Resume:
 ${text}
 
-Job Description: Web Developer
+Job Description: ${jobDescription}
 
 RETURN ONLY pure JSON.
 NO markdown.

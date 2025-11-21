@@ -49,6 +49,7 @@ const AnalysisDashboard: React.FC = () => {
         },
         body: JSON.stringify({
           text: text,
+          jobDescription: jobDescription,
         }),
       });
       const data = await response.json();
