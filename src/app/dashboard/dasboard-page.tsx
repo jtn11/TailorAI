@@ -60,6 +60,14 @@ const AnalysisDashboard: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    setAnalysis(null);
+    setFileName("");
+    setJobDescription("");
+    setGenerateCoverLetter(false);
+    setResumeText("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-3xl"></div>
@@ -184,7 +192,11 @@ const AnalysisDashboard: React.FC = () => {
               </button>
             </div>
           ) : (
-            <AnalysedResult analysis={analysis} generateCoverLetter={generateCoverLetter} />
+            <AnalysedResult
+              analysis={analysis}
+              generateCoverLetter={generateCoverLetter}
+              onReset={handleReset}
+            />
           )}
         </div>
       </main>

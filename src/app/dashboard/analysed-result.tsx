@@ -10,26 +10,23 @@ interface AnalysisResult {
 }
 
 interface Props {
-  analysis: AnalysisResult,
-  generateCoverLetter: boolean
+  analysis: AnalysisResult;
+  generateCoverLetter: boolean;
+  onReset: () => void;
 }
 
-export const AnalysedResult = ({ analysis , generateCoverLetter }: Props) => {
+export const AnalysedResult = ({
+  analysis,
+  generateCoverLetter,
+  onReset,
+}: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   console.log("Data fetched ", analysis);
-
 
   const handleCopy = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
-  const handleReset = () => {
-    // setFileName("");
-    // setJobDescription("");
-    // setAnalysis(null);
-    // setGenerateCoverLetter(false);
   };
 
   return (
@@ -141,7 +138,7 @@ export const AnalysedResult = ({ analysis , generateCoverLetter }: Props) => {
 
       {/* Reset Button */}
       <button
-        onClick={handleReset}
+        onClick={onReset}
         className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition"
       >
         Analyze Another Resume
