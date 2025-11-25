@@ -7,11 +7,10 @@ interface Navbar {
 }
 
 export const Navbar = ({ setSidebarOpen, sidebarOpen }: Navbar) => {
-
-  const {logout} = useAuth(); 
+  const { logout } = useAuth();
   const handleLogout = () => {
     logout();
-  }
+  };
 
   return (
     <header className="bg-slate-800 bg-opacity-50 backdrop-blur border-b border-slate-700">
@@ -32,9 +31,10 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen }: Navbar) => {
             </h1>
           </div>
         </div>
-        <button 
-        onClick={handleLogout}
-        className="hidden md:flex items-center space-x-2 px-4 py-2 text-red-400 hover:text-red-300 transition">
+        <button
+          onClick={handleLogout}
+          className="hidden md:flex items-center space-x-2 px-4 py-2 text-red-400 hover:text-red-300 transition"
+        >
           <LogOut size={18} />
           <span>Logout</span>
         </button>

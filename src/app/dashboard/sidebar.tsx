@@ -1,6 +1,7 @@
 "use client";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { useAnalyse } from "../context/analyseContext";
 
 interface HistoryThread {
   id: number;
@@ -19,6 +20,10 @@ export const DashboardSidebar = ({
   setSidebarOpen,
 }: DashboardSidebar) => {
   const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
+
+  const { analysedResult, SetanalysedResult } = useAnalyse();
+
+  console.log("AnalysedResult using context", analysedResult);
 
   const handleReset = () => {};
 

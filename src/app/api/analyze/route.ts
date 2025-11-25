@@ -7,7 +7,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export async function POST(req: Request) {
   try {
     console.log("Api hit");
-    const { text , jobDescription } = await req.json();
+    const { text, jobDescription } = await req.json();
     console.log(text);
 
     if (!text) {

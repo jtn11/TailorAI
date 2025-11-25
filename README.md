@@ -35,6 +35,7 @@ It leverages **Google Gemini API** (or OpenAI API) to analyze job requirements, 
 ---
 
 ## 🏗️ Tech Stack
+
 - Typescript
 
 **Frontend:**

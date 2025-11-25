@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FileText, Upload } from "lucide-react";
 import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
 import { extractTextFromPdf } from "./extractpdf";
+import { useAnalyse } from "../context/analyseContext";
 
 interface AnalysisResult {
   matchScore: number;
@@ -23,6 +24,8 @@ const AnalysisDashboard: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [text, setResumeText] = useState<string>("");
+
+  const { analysedResult, SetanalysedResult } = useAnalyse();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // <-- get the uploaded file
@@ -54,6 +57,7 @@ const AnalysisDashboard: React.FC = () => {
       });
       const data = await response.json();
       setAnalysis(data.data);
+      SetanalysedResult(data.data);
       setLoading(false);
       console.log("Response generated successfully", data);
     } catch (error) {
