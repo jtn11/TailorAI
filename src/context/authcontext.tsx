@@ -1,5 +1,5 @@
 "use client";
-import { app } from "@/firestore/firebase";
+import { app } from "@/firebase/firebase";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -16,6 +16,7 @@ interface AuthcontextType {
   signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => void;
   isLoggedIn: boolean;
+  userid?: string | null;
 }
 
 const auth = getAuth(app);
@@ -29,6 +30,7 @@ export const AuthContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userid, setUserid] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -48,6 +50,7 @@ export const AuthContextProvider = ({
       );
       const user = signedInUser.user;
       console.log(user);
+
       await setDoc(doc(firebasedb, "users", user.uid), {
         username,
         email,
@@ -70,10 +73,9 @@ export const AuthContextProvider = ({
       setCurrentUser(user);
       if (user) {
         console.log("userUID", user.uid);
-        console.log(
-          "This is the current user token",
-          (await user.getIdToken()).trim(),
-        );
+        setUserid(user.uid);
+      } else {
+        return;
       }
     });
 
@@ -83,7 +85,7 @@ export const AuthContextProvider = ({
   const isLoggedIn = currentUser ? true : false;
 
   return (
-    <Authcontext.Provider value={{ login, signup, logout, isLoggedIn }}>
+    <Authcontext.Provider value={{ login, signup, logout, isLoggedIn, userid }}>
       {children}
     </Authcontext.Provider>
   );

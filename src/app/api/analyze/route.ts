@@ -1,13 +1,15 @@
 export const runtime = "nodejs";
+import { db } from "@/firebase/firebase-admin";
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+// TODO: Make sure to import and initialize your Firebase Admin SDK
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(req: Request) {
   try {
     console.log("Api hit");
-    const { text, jobDescription } = await req.json();
+    const { text, jobDescription, userId } = await req.json();
     console.log(text);
 
     if (!text) {
@@ -65,7 +67,22 @@ Use EXACT schema:
       );
     }
 
-    return NextResponse.json({ success: true, data: parsed });
+    // storing analysis_history in firestore
+
+    const docRef = await db
+      .collection("users")
+      .doc(userId)
+      .collection("analysis_history")
+      .add({
+        createdAt: new Date(),
+        data: parsed,
+      });
+    console.log("Analysis data prepared for Firestore:", docRef.id);
+    return NextResponse.json({
+      success: true,
+      data: parsed,
+      historyId: docRef.id,
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

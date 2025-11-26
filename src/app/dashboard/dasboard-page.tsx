@@ -5,7 +5,8 @@ import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
 import { extractTextFromPdf } from "./extractpdf";
-import { useAnalyse } from "../context/analyseContext";
+import { useAnalyse } from "../../context/analyseContext";
+import { useAuth } from "@/context/authcontext";
 
 interface AnalysisResult {
   matchScore: number;
@@ -26,6 +27,7 @@ const AnalysisDashboard: React.FC = () => {
   const [text, setResumeText] = useState<string>("");
 
   const { analysedResult, SetanalysedResult } = useAnalyse();
+  const { userid } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // <-- get the uploaded file
@@ -44,6 +46,11 @@ const AnalysisDashboard: React.FC = () => {
       alert("Please upload a resume and enter a job description");
       return;
     }
+    if (!userid) {
+      return alert("Please login to continue");
+    }
+    console.log("user id ", userid);
+
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -52,10 +59,13 @@ const AnalysisDashboard: React.FC = () => {
         },
         body: JSON.stringify({
           text: text,
+          userId: userid,
           jobDescription: jobDescription,
         }),
       });
+
       const data = await response.json();
+      console.log("Data is this : ", data);
       setAnalysis(data.data);
       SetanalysedResult(data.data);
       setLoading(false);

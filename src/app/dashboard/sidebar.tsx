@@ -1,7 +1,7 @@
 "use client";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { useAnalyse } from "../context/analyseContext";
+import { useAnalyse } from "../../context/analyseContext";
 
 interface HistoryThread {
   id: number;
