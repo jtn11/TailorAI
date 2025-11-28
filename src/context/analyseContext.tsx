@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface AnalyseContextType {
   analysedResult: AnalysedResult | null;
@@ -24,6 +24,16 @@ export const AnalyseContextProvider = ({
   const [analysedResult, SetanalysedResult] = useState<AnalysedResult | null>(
     null,
   );
+
+   const[analyseList , setAnalyseList] = useState<AnalysedResult[]>([]); 
+
+   // fetch the number of analysed threads 
+  //  useEffect(()=>{
+
+  //   const analyseListDoc = async ()=>{
+
+  //   }
+  //  })
 
   return (
     <AnalyseContext.Provider value={{ analysedResult, SetanalysedResult }}>

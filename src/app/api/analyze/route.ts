@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { db } from "@/firebase/firebase-admin";
+import { getAuth } from "firebase/auth";
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 // TODO: Make sure to import and initialize your Firebase Admin SDK
@@ -89,5 +90,37 @@ Use EXACT schema:
       { error: "internal server error" },
       { status: 500 },
     );
+  }
+}
+
+
+export async function GET(req: Request) {
+  try {
+    const { userId } = await req.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId missing" },
+        { status: 400 }
+      );
+    }
+
+    const snapshot = await db
+      .collection("users")
+      .doc(userId)
+      .collection("analysis")
+      .orderBy("createdAt", "desc")
+      .get();
+
+    const history = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return NextResponse.json({ success: true, history });
+
+  } catch (error) {
+    console.error("Firestore fetch error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
