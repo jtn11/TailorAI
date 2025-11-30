@@ -25,9 +25,9 @@ export const AnalyseContextProvider = ({
     null,
   );
 
-   const[analyseList , setAnalyseList] = useState<AnalysedResult[]>([]); 
+  const [analyseList, setAnalyseList] = useState<AnalysedResult[]>([]);
 
-   // fetch the number of analysed threads 
+  // fetch the number of analysed threads
   //  useEffect(()=>{
 
   //   const analyseListDoc = async ()=>{

@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FileText, Upload } from "lucide-react";
 import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
@@ -25,6 +25,8 @@ const AnalysisDashboard: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [text, setResumeText] = useState<string>("");
+
+  const [history, setHistory] = useState<any>([]);
 
   const { analysedResult, SetanalysedResult } = useAnalyse();
   const { userid } = useAuth();
@@ -82,6 +84,21 @@ const AnalysisDashboard: React.FC = () => {
     setGenerateCoverLetter(false);
     setResumeText("");
   };
+
+  const fetchHistory = async () => {
+    const res = await fetch(`/api/history/${userid}`, {
+      method: "GET",
+    });
+
+    const data = await res.json();
+    console.log("Fetched history:", data);
+    setHistory(data.history);
+  };
+
+  useEffect(() => {
+    const res = fetchHistory();
+    console.log(" History here is this one ", res);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
