@@ -1,13 +1,17 @@
 "use client";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAnalyse } from "../../context/analyseContext";
+import { useAuth } from "@/context/authcontext";
 
-interface HistoryThread {
-  id: number;
-  jobTitle: string;
-  date: string;
-  score: number;
+interface AnalysisResult {
+  matchScore: number;
+  missingKeywords: string[];
+  missingSkills: string[];
+  suggestions: string[];
+  coverLetter?: string;
+  jobDescription : string;
+  date : string;
 }
 
 interface DashboardSidebar {
@@ -19,34 +23,38 @@ export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
 }: DashboardSidebar) => {
-  const [currentThreadId, setCurrentThreadId] = useState<number | null>(null);
+  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[] | null>(null);
 
   const { analysedResult, SetanalysedResult } = useAnalyse();
+  const { userid } = useAuth();
 
   console.log("AnalysedResult using context", analysedResult);
 
   const handleReset = () => {};
 
-  const handleLoadThread = (thread: HistoryThread) => {
-    setCurrentThreadId(thread.id);
-  };
 
-  const handleDeleteThread = (id: number) => {
-    setHistoryThreads(historyThreads.filter((t) => t.id !== id));
-  };
+     const fetchHistory = async () => {
+      const res = await fetch(`/api/history/${userid}`, {
+        method: "GET",
+      });
+  
+      const data = await res.json();
+      console.log("Fetched history:", data);
+      setCurrentThreads(data.history);
+    };
+  
+    useEffect(() => {
+      const res = fetchHistory();
+      console.log(" History here is this one ", res);
+    }, []);
 
-  const [historyThreads, setHistoryThreads] = useState<HistoryThread[]>([
-    {
-      id: 1,
-      jobTitle: "Senior React Developer",
-      date: "2024-10-15",
-      score: 85,
-    },
-    { id: 2, jobTitle: "Full Stack Engineer", date: "2024-10-14", score: 72 },
-    { id: 3, jobTitle: "Frontend Engineer", date: "2024-10-13", score: 58 },
-    { id: 4, jobTitle: "Product Manager", date: "2024-10-12", score: 92 },
-    { id: 5, jobTitle: "DevOps Engineer", date: "2024-10-11", score: 68 },
-  ]);
+  // const handleLoadThread = (thread: HistoryThread) => {
+  //   setCurrentThreadId(thread.id);
+  // };
+
+  // const handleDeleteThread = (id: number) => {
+  //   setHistoryThreads(historyThreads.filter((t) => t.id !== id));
+  // };
 
   return (
     <aside
@@ -80,24 +88,24 @@ export const DashboardSidebar = ({
           <p className="text-xs font-semibold text-gray-500 px-2 mb-3">
             RECENT ANALYSES
           </p>
-          {historyThreads.map((thread) => (
+          {historyThreads?.map((thread) => (
             <div
-              key={thread.id}
-              onClick={() => handleLoadThread(thread)}
+              
+              onClick={() => console.log("clicked")}
               className={`p-3 rounded-lg cursor-pointer transition group ${
-                currentThreadId === thread.id
+                thread === thread
                   ? "bg-blue-600 bg-opacity-30 border border-blue-500"
                   : "bg-slate-800 hover:bg-slate-700 border border-slate-700"
               }`}
             >
               <div className="flex items-start justify-between mb-2">
                 <h4 className="text-sm font-medium text-white truncate flex-1 pr-2">
-                  {thread.jobTitle}
+                  {thread.jobDescription}
                 </h4>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDeleteThread(thread.id);
+                    // handleDeleteThread(thread.id);
                   }}
                   className="text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
                 >
@@ -111,14 +119,14 @@ export const DashboardSidebar = ({
                 </span>
                 <span
                   className={`text-xs font-bold ${
-                    thread.score >= 75
+                    thread.matchScore >= 75
                       ? "text-green-400"
-                      : thread.score >= 50
+                      : thread.matchScore >= 50
                         ? "text-yellow-400"
                         : "text-red-400"
                   }`}
                 >
-                  {thread.score}%
+                  {thread.matchScore}%
                 </span>
               </div>
             </div>

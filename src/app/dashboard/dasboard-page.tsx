@@ -85,21 +85,6 @@ const AnalysisDashboard: React.FC = () => {
     setResumeText("");
   };
 
-  const fetchHistory = async () => {
-    const res = await fetch(`/api/history/${userid}`, {
-      method: "GET",
-    });
-
-    const data = await res.json();
-    console.log("Fetched history:", data);
-    setHistory(data.history);
-  };
-
-  useEffect(() => {
-    const res = fetchHistory();
-    console.log(" History here is this one ", res);
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-3xl"></div>

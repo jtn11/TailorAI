@@ -32,6 +32,7 @@ NO markdown.
 NO explanation.
 NO extra text.
 NO backticks.
+jobDescription (in two -three words) 
 
 Use EXACT schema:
 
@@ -40,7 +41,9 @@ Use EXACT schema:
   "missingSkills": string[],
   "missingKeywords": string[],
   "suggestions": string[],
-  "coverLetter": string
+  "coverLetter": string,
+  "jobDescription" : string,
+  "date": string
 }
 `;
 
