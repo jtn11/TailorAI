@@ -72,19 +72,19 @@ Use EXACT schema:
 
     // storing analysis_history in firestore
 
-    // const docRef = await db
-    //   .collection("users")
-    //   .doc(userId)
-    //   .collection("analysis_history")
-    //   .add({
-    //     createdAt: new Date(),
-    //     data: parsed,
-    //   });
-    // console.log("Analysis data prepared for Firestore:", docRef.id);
+    const docRef = await db
+      .collection("users")
+      .doc(userId)
+      .collection("analysis_history")
+      .add({
+        createdAt: new Date(),
+        data: parsed,
+      });
+    console.log("Analysis data prepared for Firestore:", docRef.id);
     return NextResponse.json({
       success: true,
       data: parsed,
-      // historyId: docRef.id,
+      historyId: docRef.id,
     });
   } catch (error) {
     console.log(error);

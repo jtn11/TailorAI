@@ -32,15 +32,24 @@ export const DashboardSidebar = ({
 
   const handleReset = () => {};
 
-
      const fetchHistory = async () => {
       const res = await fetch(`/api/history/${userid}`, {
         method: "GET",
       });
   
       const data = await res.json();
+      const formatted = data.history.map((item: any) => ({
+        id: item.id,
+        jobDescription: item.data.jobDescription,
+        matchScore: item.data.matchScore,
+        date: item.data.createdAt?.toDate
+          ? item.data.createdAt.toDate().toLocaleString()
+          : "Unknown",
+          
+      }));
+
+      setCurrentThreads(formatted);
       console.log("Fetched history:", data);
-      setCurrentThreads(data.history);
     };
   
     useEffect(() => {
