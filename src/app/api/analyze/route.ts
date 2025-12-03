@@ -43,7 +43,7 @@ Use EXACT schema:
   "suggestions": string[],
   "coverLetter": string,
   "jobDescription" : string,
-  "date": string
+  "date": string (should be the current date)
 }
 `;
 

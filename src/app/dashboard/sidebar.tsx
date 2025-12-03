@@ -10,8 +10,8 @@ interface AnalysisResult {
   missingSkills: string[];
   suggestions: string[];
   coverLetter?: string;
-  jobDescription : string;
-  date : string;
+  jobDescription: string;
+  date: string;
 }
 
 interface DashboardSidebar {
@@ -23,7 +23,9 @@ export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
 }: DashboardSidebar) => {
-  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[] | null>(null);
+  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[] | null>(
+    null,
+  );
 
   const { analysedResult, SetanalysedResult } = useAnalyse();
   const { userid } = useAuth();
@@ -32,30 +34,27 @@ export const DashboardSidebar = ({
 
   const handleReset = () => {};
 
-     const fetchHistory = async () => {
-      const res = await fetch(`/api/history/${userid}`, {
-        method: "GET",
-      });
-  
-      const data = await res.json();
-      const formatted = data.history.map((item: any) => ({
-        id: item.id,
-        jobDescription: item.data.jobDescription,
-        matchScore: item.data.matchScore,
-        date: item.data.createdAt?.toDate
-          ? item.data.createdAt.toDate().toLocaleString()
-          : "Unknown",
-          
-      }));
+  const fetchHistory = async () => {
+    const res = await fetch(`/api/history/${userid}`, {
+      method: "GET",
+    });
 
-      setCurrentThreads(formatted);
-      console.log("Fetched history:", data);
-    };
-  
-    useEffect(() => {
-      const res = fetchHistory();
-      console.log(" History here is this one ", res);
-    }, []);
+    const data = await res.json();
+    const formatted = data.history.map((item: any) => ({
+      id: item.id,
+      jobDescription: item.data.jobDescription,
+      matchScore: item.data.matchScore,
+      date: item.data.date,
+    }));
+
+    setCurrentThreads(formatted);
+    console.log("Fetched history:", data);
+  };
+
+  useEffect(() => {
+    const res = fetchHistory();
+    console.log(" History here is this one ", res);
+  }, []);
 
   // const handleLoadThread = (thread: HistoryThread) => {
   //   setCurrentThreadId(thread.id);
@@ -99,7 +98,6 @@ export const DashboardSidebar = ({
           </p>
           {historyThreads?.map((thread) => (
             <div
-              
               onClick={() => console.log("clicked")}
               className={`p-3 rounded-lg cursor-pointer transition group ${
                 thread === thread
