@@ -24,6 +24,12 @@ const Signup: React.FC = () => {
       alert("Passwords do not match");
       return;
     }
+
+    if(password.length < 6){
+      alert("Password should be of atleast 6 Characters");
+      return ; 
+    }
+    
     try {
       await signup(email, password, username);
       router.push("/dashboard");
