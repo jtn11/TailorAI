@@ -58,5 +58,3 @@ It leverages **Google Gemini API** (or OpenAI API) to analyze job requirements, 
 - Render / Railway (Backend)
 
 ---
-
-## 📁 Folder Structure
