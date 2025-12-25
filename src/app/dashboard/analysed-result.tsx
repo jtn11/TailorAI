@@ -1,13 +1,6 @@
+import { AnalysisResult } from "@/types/analysis";
 import { AlertCircle, CheckCircle, Copy, Download } from "lucide-react";
 import { useState } from "react";
-
-interface AnalysisResult {
-  matchScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  suggestions: string[];
-  coverLetter?: string;
-}
 
 interface Props {
   analysis: AnalysisResult;

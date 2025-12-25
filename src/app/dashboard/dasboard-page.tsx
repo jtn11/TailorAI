@@ -3,16 +3,8 @@ import React, { useState } from "react";
 import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
-import { useAnalyse } from "../../context/analyseContext";
 import { CreateNewThread } from "./create-new-thread";
-
-interface AnalysisResult {
-  matchScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  suggestions: string[];
-  coverLetter?: string;
-}
+import { AnalysisResult } from "@/types/analysis";
 
 const AnalysisDashboard: React.FC = () => {
   const [fileName, setFileName] = useState<string>("");
@@ -41,6 +33,7 @@ const AnalysisDashboard: React.FC = () => {
         <DashboardSidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
+          setAnalysis={setAnalysis}
         />
       )}
       {/* Main Content */}

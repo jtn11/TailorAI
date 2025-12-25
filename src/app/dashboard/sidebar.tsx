@@ -3,58 +3,37 @@ import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAnalyse } from "../../context/analyseContext";
 import { useAuth } from "@/context/authcontext";
+import { FetchChatThread } from "./thread-functions";
+import { AnalysisResult } from "@/types/analysis";
 
-interface AnalysisResult {
-  matchScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  suggestions: string[];
-  coverLetter?: string;
-  jobDescription: string;
-  date: string;
-}
-
-interface DashboardSidebar {
+interface DashboardSidebarProps {
   setSidebarOpen: (open: boolean) => void;
   sidebarOpen: boolean;
+  setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>;
 }
 
 export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
-}: DashboardSidebar) => {
-  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[] | null>(
-    null,
-  );
+  setAnalysis,
+}: DashboardSidebarProps) => {
+  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
 
-  const { analysedResult, SetanalysedResult } = useAnalyse();
   const { userid } = useAuth();
-
-  console.log("AnalysedResult using context", analysedResult);
 
   const handleReset = () => {};
 
   const fetchHistory = async () => {
-    const res = await fetch(`/api/history/${userid}`, {
-      method: "GET",
-    });
-
-    const data = await res.json();
-    const formatted = data.history.map((item: any) => ({
-      id: item.id,
-      jobDescription: item.data.jobDescription,
-      matchScore: item.data.matchScore,
-      date: item.data.date,
-    }));
-
-    setCurrentThreads(formatted);
-    console.log("Fetched history:", data);
+    if (!userid) return;
+    const formattedData = await FetchChatThread(userid);
+    console.log("Formatted Data inside historythreads", formattedData);
+    setCurrentThreads(formattedData);
   };
 
   useEffect(() => {
     const res = fetchHistory();
     console.log(" History here is this one ", res);
-  }, []);
+  }, [userid]);
 
   // const handleLoadThread = (thread: HistoryThread) => {
   //   setCurrentThreadId(thread.id);
@@ -98,7 +77,11 @@ export const DashboardSidebar = ({
           </p>
           {historyThreads?.map((thread) => (
             <div
-              onClick={() => console.log("clicked")}
+              key={thread.id}
+              onClick={() => {
+                console.log("Clicked");
+                // setAnalysis(thread)
+              }}
               className={`p-3 rounded-lg cursor-pointer transition group ${
                 thread === thread
                   ? "bg-blue-600 bg-opacity-30 border border-blue-500"

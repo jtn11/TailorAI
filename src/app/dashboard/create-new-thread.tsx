@@ -2,14 +2,7 @@ import { FileText, Upload } from "lucide-react";
 import { extractTextFromPdf } from "./extractpdf";
 import { handleAnalyze } from "./handle-analyze";
 import { useAuth } from "@/context/authcontext";
-
-interface AnalysisResult {
-  matchScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  suggestions: string[];
-  coverLetter?: string;
-}
+import { AnalysisResult } from "@/types/analysis";
 
 interface ChatThreadProps {
   setFileName: React.Dispatch<React.SetStateAction<string>>;

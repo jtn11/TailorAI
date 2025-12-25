@@ -1,12 +1,4 @@
-import { useAuth } from "@/context/authcontext";
-
-interface AnalysisResult {
-  matchScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  suggestions: string[];
-  coverLetter?: string;
-}
+import { AnalysisResult } from "@/types/analysis";
 
 interface AnalyzedProps {
   fileName: string;
