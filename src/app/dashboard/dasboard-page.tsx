@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
@@ -23,6 +23,10 @@ const AnalysisDashboard: React.FC = () => {
     setGenerateCoverLetter(false);
     setResumeText("");
   };
+
+  useEffect(() => {
+    console.log("Analysis in dashbaord", analysis);
+  }, [analysis]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">

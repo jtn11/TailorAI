@@ -1,3 +1,4 @@
+"use client";
 import { FileText, Upload } from "lucide-react";
 import { extractTextFromPdf } from "./extractpdf";
 import { handleAnalyze } from "./handle-analyze";

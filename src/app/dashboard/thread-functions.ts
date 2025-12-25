@@ -1,5 +1,3 @@
-import { it } from "node:test";
-
 export const FetchChatThread = async (userid: string) => {
   try {
     const res = await fetch(`/api/history/${userid}`);
@@ -13,6 +11,7 @@ export const FetchChatThread = async (userid: string) => {
       coverLetter: items.coverLetter,
       missingSkills: items.data.missingSkills,
       missingKeywords: items.data.missingKeywords,
+      suggestions: items.data.suggestions,
     }));
     return formatData;
   } catch (error) {

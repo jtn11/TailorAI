@@ -80,7 +80,7 @@ export const DashboardSidebar = ({
               key={thread.id}
               onClick={() => {
                 console.log("Clicked");
-                // setAnalysis(thread)
+                setAnalysis(thread);
               }}
               className={`p-3 rounded-lg cursor-pointer transition group ${
                 thread === thread

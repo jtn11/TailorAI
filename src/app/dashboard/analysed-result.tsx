@@ -1,3 +1,4 @@
+"use client";
 import { AnalysisResult } from "@/types/analysis";
 import { AlertCircle, CheckCircle, Copy, Download } from "lucide-react";
 import { useState } from "react";
