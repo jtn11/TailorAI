@@ -17,6 +17,7 @@ interface AuthcontextType {
   logout: () => void;
   isLoggedIn: boolean;
   userid?: string | null;
+  currentUser: any;
 }
 
 const auth = getAuth(app);
@@ -85,7 +86,9 @@ export const AuthContextProvider = ({
   const isLoggedIn = currentUser ? true : false;
 
   return (
-    <Authcontext.Provider value={{ login, signup, logout, isLoggedIn, userid }}>
+    <Authcontext.Provider
+      value={{ login, signup, logout, isLoggedIn, userid, currentUser }}
+    >
       {children}
     </Authcontext.Provider>
   );

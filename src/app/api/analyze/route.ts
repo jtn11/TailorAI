@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 import { db } from "@/firebase/firebase-admin";
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
-// TODO: Make sure to import and initialize your Firebase Admin SDK
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -20,33 +19,32 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-Analyze this resume for a job match.
+        Analyze this resume for a job match.
 
-Resume:
-${text}
+        Resume:
+        ${text}
 
-Job Description: ${jobDescription}
+        Job Description: ${jobDescription}
 
-RETURN ONLY pure JSON.
-NO markdown.
-NO explanation.
-NO extra text.
-NO backticks.
-jobDescription (in two -three words) 
-matchScore (decimal value between 0-1)
+        RETURN ONLY pure JSON.
+        NO markdown.
+        NO explanation.
+        NO extra text.
+        NO backticks.
+        jobDescription (in two -three words) 
+        matchScore (decimal value between 0-1)
 
-Use EXACT schema:
+        Use EXACT schema:
 
-{
-  "matchScore": number,
-  "missingSkills": string[],
-  "missingKeywords": string[],
-  "suggestions": string[],
-  "coverLetter": string,
-  "jobDescription" : string,
-  "date": string (should be the current date)
-}
-`;
+        {
+          "matchScore": number,
+          "missingSkills": string[],
+          "missingKeywords": string[],
+          "suggestions": string[],
+          "coverLetter": string,
+          "jobDescription" : string,
+          "date": string (should be the current date)
+        } `;
 
     const response = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",

@@ -20,7 +20,7 @@ export const DashboardSidebar = ({
 }: DashboardSidebarProps) => {
   const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
 
-  const { userid, logout } = useAuth();
+  const { userid, currentUser, logout } = useAuth();
 
   const fetchHistory = async () => {
     if (!userid) return;
@@ -38,8 +38,19 @@ export const DashboardSidebar = ({
   //   setCurrentThreadId(thread.id);
   // };
 
-  const handleDeleteThread = (id: string) => {
+  const handleDeleteThread = async (id: string) => {
+    const token = await currentUser.getIdToken();
+
     setCurrentThreads(historyThreads.filter((t) => t.id !== id));
+
+    const deletedThread = await fetch(`/api/analyze/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log(deletedThread);
   };
 
   return (
