@@ -9,19 +9,18 @@ interface DashboardSidebarProps {
   setSidebarOpen: (open: boolean) => void;
   sidebarOpen: boolean;
   setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>;
-  handleReset : ()=> void ; 
+  handleReset: () => void;
 }
 
 export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
   setAnalysis,
-  handleReset
+  handleReset,
 }: DashboardSidebarProps) => {
   const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
 
-  const { userid , logout } = useAuth();
-
+  const { userid, logout } = useAuth();
 
   const fetchHistory = async () => {
     if (!userid) return;
@@ -39,9 +38,9 @@ export const DashboardSidebar = ({
   //   setCurrentThreadId(thread.id);
   // };
 
-  // const handleDeleteThread = (id: number) => {
-  //   setHistoryThreads(historyThreads.filter((t) => t.id !== id));
-  // };
+  const handleDeleteThread = (id: string) => {
+    setCurrentThreads(historyThreads.filter((t) => t.id !== id));
+  };
 
   return (
     <aside
@@ -79,7 +78,7 @@ export const DashboardSidebar = ({
             <div
               key={thread.id}
               onClick={() => {
-                console.log("Clicked");
+                console.log(`Clicked here : ${thread.id}`);
                 setAnalysis(thread);
               }}
               className={`p-3 rounded-lg cursor-pointer transition group ${
@@ -95,7 +94,7 @@ export const DashboardSidebar = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // handleDeleteThread(thread.id);
+                    handleDeleteThread(thread.id);
                   }}
                   className="text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
                 >
@@ -116,7 +115,7 @@ export const DashboardSidebar = ({
                         : "text-red-400"
                   }`}
                 >
-                  {thread.matchScore}%
+                  {thread.matchScore * 100}%
                 </span>
               </div>
             </div>
@@ -125,8 +124,9 @@ export const DashboardSidebar = ({
 
         {/* Sidebar Footer */}
         <div className="border-t border-slate-700 p-4">
-          <button className="w-full flex items-center space-x-2 text-red-400 hover:text-red-300 transition font-medium"
-          onClick={logout}
+          <button
+            className="w-full flex items-center space-x-2 text-red-400 hover:text-red-300 transition font-medium"
+            onClick={logout}
           >
             <LogOut size={18} />
             <span>Logout</span>

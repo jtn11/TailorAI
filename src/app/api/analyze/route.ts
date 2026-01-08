@@ -33,6 +33,7 @@ NO explanation.
 NO extra text.
 NO backticks.
 jobDescription (in two -three words) 
+matchScore (decimal value between 0-1)
 
 Use EXACT schema:
 

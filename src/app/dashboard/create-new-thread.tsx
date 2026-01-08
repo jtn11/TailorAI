@@ -19,7 +19,7 @@ interface ChatThreadProps {
   loading: boolean;
 }
 
-export const CreateNewThread = ({ 
+export const CreateNewThread = ({
   setFileName,
   setResumeText,
   setJobDescription,

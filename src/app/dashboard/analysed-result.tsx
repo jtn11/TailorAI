@@ -29,12 +29,11 @@ export const AnalysedResult = ({
         <p className="text-gray-300 text-lg mb-2">Overall Match Score</p>
         <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
           {analysis && Math.round(analysis.matchScore * 100)}%
-
         </div>
         <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
           <div
             className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full transition-all duration-1000"
-            style={{ width: `${analysis && analysis.matchScore}%` }}
+            style={{ width: `${analysis && analysis.matchScore * 100}%` }}
           ></div>
         </div>
       </div>
