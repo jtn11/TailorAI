@@ -28,7 +28,8 @@ export const AnalysedResult = ({
       <div className="bg-gradient-to-r from-blue-900 to-cyan-900 border border-blue-700 rounded-2xl p-8 text-center">
         <p className="text-gray-300 text-lg mb-2">Overall Match Score</p>
         <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
-          {analysis && analysis.matchScore}%
+          {analysis && Math.round(analysis.matchScore * 100)}%
+
         </div>
         <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
           <div

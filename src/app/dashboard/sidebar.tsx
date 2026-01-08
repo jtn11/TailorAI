@@ -109,7 +109,7 @@ export const DashboardSidebar = ({
                 </span>
                 <span
                   className={`text-xs font-bold ${
-                    thread.matchScore >= 75
+                    Math.round(thread.matchScore * 100) >= 75
                       ? "text-green-400"
                       : thread.matchScore >= 50
                         ? "text-yellow-400"
