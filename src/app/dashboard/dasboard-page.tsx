@@ -38,6 +38,7 @@ const AnalysisDashboard: React.FC = () => {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           setAnalysis={setAnalysis}
+          handleReset={handleReset}
         />
       )}
       {/* Main Content */}

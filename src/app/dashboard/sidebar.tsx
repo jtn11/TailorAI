@@ -1,7 +1,6 @@
 "use client";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAnalyse } from "../../context/analyseContext";
 import { useAuth } from "@/context/authcontext";
 import { FetchChatThread } from "./thread-functions";
 import { AnalysisResult } from "@/types/analysis";
@@ -10,18 +9,19 @@ interface DashboardSidebarProps {
   setSidebarOpen: (open: boolean) => void;
   sidebarOpen: boolean;
   setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>;
+  handleReset : ()=> void ; 
 }
 
 export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
   setAnalysis,
+  handleReset
 }: DashboardSidebarProps) => {
   const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
 
-  const { userid } = useAuth();
+  const { userid , logout } = useAuth();
 
-  const handleReset = () => {};
 
   const fetchHistory = async () => {
     if (!userid) return;
@@ -125,7 +125,9 @@ export const DashboardSidebar = ({
 
         {/* Sidebar Footer */}
         <div className="border-t border-slate-700 p-4">
-          <button className="w-full flex items-center space-x-2 text-red-400 hover:text-red-300 transition font-medium">
+          <button className="w-full flex items-center space-x-2 text-red-400 hover:text-red-300 transition font-medium"
+          onClick={logout}
+          >
             <LogOut size={18} />
             <span>Logout</span>
           </button>
