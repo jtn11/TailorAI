@@ -39,7 +39,7 @@ export const DashboardSidebar = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 transition-all duration-300 z-40 overflow-hidden ${sidebarOpen ? "w-72" : "w-0"}`}
+      className={`fixed md:static left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 transition-all duration-300 z-40 overflow-hidden ${sidebarOpen ? "w-72" : "w-0"}`}
     >
       <div className="h-full flex flex-col">
         {/* Sidebar Header */}
