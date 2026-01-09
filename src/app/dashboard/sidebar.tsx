@@ -1,8 +1,6 @@
 "use client";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/context/authcontext";
-import { FetchChatThread } from "./thread-functions";
 import { AnalysisResult } from "@/types/analysis";
 
 interface DashboardSidebarProps {
@@ -10,6 +8,8 @@ interface DashboardSidebarProps {
   sidebarOpen: boolean;
   setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>;
   handleReset: () => void;
+  historyThreads: AnalysisResult[];
+  setCurrentThreads: React.Dispatch<React.SetStateAction<AnalysisResult[]>>;
 }
 
 export const DashboardSidebar = ({
@@ -17,31 +17,15 @@ export const DashboardSidebar = ({
   setSidebarOpen,
   setAnalysis,
   handleReset,
+  historyThreads,
+  setCurrentThreads,
 }: DashboardSidebarProps) => {
-  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
-
-  const { userid, currentUser, logout } = useAuth();
-
-  const fetchHistory = async () => {
-    if (!userid) return;
-    const formattedData = await FetchChatThread(userid);
-    console.log("Formatted Data inside historythreads", formattedData);
-    setCurrentThreads(formattedData);
-  };
-
-  useEffect(() => {
-    const res = fetchHistory();
-    console.log(" History here is this one ", res);
-  }, [userid]);
-
-  // const handleLoadThread = (thread: HistoryThread) => {
-  //   setCurrentThreadId(thread.id);
-  // };
+  const { currentUser, logout } = useAuth();
 
   const handleDeleteThread = async (id: string) => {
     const token = await currentUser.getIdToken();
 
-    setCurrentThreads(historyThreads.filter((t) => t.id !== id));
+    setCurrentThreads((prev) => prev.filter((t) => t.id !== id));
 
     const deletedThread = await fetch(`/api/analyze/delete/${id}`, {
       method: "DELETE",

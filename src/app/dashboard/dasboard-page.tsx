@@ -5,6 +5,8 @@ import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
 import { CreateNewThread } from "./create-new-thread";
 import { AnalysisResult } from "@/types/analysis";
+import { FetchChatThread } from "./thread-functions";
+import { useAuth } from "@/context/authcontext";
 
 const AnalysisDashboard: React.FC = () => {
   const [fileName, setFileName] = useState<string>("");
@@ -15,6 +17,9 @@ const AnalysisDashboard: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [text, setResumeText] = useState<string>("");
+  const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
+
+  const { userid } = useAuth();
 
   const handleReset = () => {
     setAnalysis(null);
@@ -24,9 +29,17 @@ const AnalysisDashboard: React.FC = () => {
     setResumeText("");
   };
 
+  const fetchHistory = async () => {
+    if (!userid) return;
+    const formattedData = await FetchChatThread(userid);
+    console.log("Formatted Data inside historythreads", formattedData);
+    setCurrentThreads(formattedData);
+  };
+
   useEffect(() => {
+    fetchHistory();
     console.log("Analysis in dashbaord", analysis);
-  }, [analysis]);
+  }, [userid]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
@@ -39,6 +52,8 @@ const AnalysisDashboard: React.FC = () => {
           setSidebarOpen={setSidebarOpen}
           setAnalysis={setAnalysis}
           handleReset={handleReset}
+          historyThreads={historyThreads}
+          setCurrentThreads={setCurrentThreads}
         />
       )}
       {/* Main Content */}
@@ -66,6 +81,7 @@ const AnalysisDashboard: React.FC = () => {
               setAnalysis={setAnalysis}
               setLoading={setLoading}
               loading={loading}
+              fetchHistory={fetchHistory}
             />
           ) : (
             <AnalysedResult

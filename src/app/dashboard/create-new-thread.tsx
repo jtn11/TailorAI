@@ -17,6 +17,7 @@ interface ChatThreadProps {
   setAnalysis: React.Dispatch<React.SetStateAction<AnalysisResult | null>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  fetchHistory: () => Promise<void>;
 }
 
 export const CreateNewThread = ({
@@ -31,6 +32,7 @@ export const CreateNewThread = ({
   setLoading,
   setGenerateCoverLetter,
   loading,
+  fetchHistory,
 }: ChatThreadProps) => {
   const { userid } = useAuth();
 
@@ -46,11 +48,11 @@ export const CreateNewThread = ({
     console.log("extracted text", extractedText);
   };
 
-  const onAnalyzeClick = () => {
+  const onAnalyzeClick = async () => {
     if (!fileName || !jobDescription || !text || !userid) return;
 
     setLoading(true);
-    handleAnalyze({
+    await handleAnalyze({
       fileName,
       jobDescription,
       text,
@@ -58,6 +60,7 @@ export const CreateNewThread = ({
       setLoading,
       userid,
     });
+    fetchHistory();
   };
 
   return (
