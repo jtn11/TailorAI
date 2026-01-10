@@ -1,12 +1,17 @@
 "use client";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
 
-GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.js";
-
 export async function extractTextFromPdf(file: File): Promise<string> {
+  if (typeof window === "undefined") {
+    throw new Error("PDF extraction must run in the browser");
+  }
+
+  const pdfjs = await import("pdfjs-dist");
+
+  pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.js";
+
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await getDocument({ data: arrayBuffer }).promise;
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
 
   let text = "";
 
