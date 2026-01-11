@@ -1,13 +1,12 @@
 "use client";
 import { app } from "@/firebase/firebase";
 import {
-  createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -21,7 +20,7 @@ interface AuthcontextType {
 }
 
 const auth = getAuth(app);
-const firebasedb = getFirestore();
+const firebasedb = getFirestore(app);
 
 const Authcontext = createContext<AuthcontextType | undefined>(undefined);
 
@@ -37,31 +36,27 @@ export const AuthContextProvider = ({
 
   const login = async (email: string, password: string) => {
     const userCred = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCred.user;
-    console.log(user);
+    const idToken = await userCred.user.getIdToken();
+    await fetch("api/auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+
     router.push("/dashboard");
   };
 
   const signup = async (email: string, password: string, username: string) => {
-    try {
-      const signedInUser = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      const user = signedInUser.user;
-      console.log(user);
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ email, password, username }),
+    });
 
-      await setDoc(doc(firebasedb, "users", user.uid), {
-        username,
-        email,
-        uid: user.uid,
-        createdAt: serverTimestamp(),
-      });
-      router.push("/dashboard");
-    } catch (error) {
-      console.log(error);
+    if (!res.ok) {
+      throw new Error("Signup Failed");
     }
+    router.push("/dashboard");
   };
 
   const logout = async () => {

@@ -30,6 +30,10 @@ const Signup: React.FC = () => {
       return;
     }
 
+    if (!email.trim()) {
+      return alert("Email is required");
+    }
+
     try {
       await signup(email, password, username);
       router.push("/dashboard");
