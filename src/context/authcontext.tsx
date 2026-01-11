@@ -1,12 +1,12 @@
 "use client";
 import { app } from "@/firebase/firebase";
+import { create } from "domain";
 import {
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -20,7 +20,6 @@ interface AuthcontextType {
 }
 
 const auth = getAuth(app);
-const firebasedb = getFirestore(app);
 
 const Authcontext = createContext<AuthcontextType | undefined>(undefined);
 
@@ -34,15 +33,18 @@ export const AuthContextProvider = ({
 
   const router = useRouter();
 
-  const login = async (email: string, password: string) => {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    const idToken = await userCred.user.getIdToken();
+  const createSession = async (user: any) => {
+    const idToken = await user.getIdToken();
     await fetch("api/auth/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
     });
+  };
 
+  const login = async (email: string, password: string) => {
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    await createSession(userCred.user);
     router.push("/dashboard");
   };
 
@@ -52,10 +54,12 @@ export const AuthContextProvider = ({
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ email, password, username }),
     });
-
     if (!res.ok) {
-      throw new Error("Signup Failed");
+      throw new Error("Signup failed");
     }
+
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    await createSession(userCred.user);
     router.push("/dashboard");
   };
 
