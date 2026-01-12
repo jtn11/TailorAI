@@ -4,7 +4,7 @@ export function middleware(req: NextRequest) {
   const session = req.cookies.get("session")?.value;
   const pathname = req.nextUrl.pathname;
 
-  if ((session && pathname === "/signin") || pathname === "/signup") {
+  if (session && (pathname === "/signin" || pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
