@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { useRouter } from "next/navigation";
+import { notifyError } from "../lib/notify";
 
 export const Signin: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -12,6 +13,16 @@ export const Signin: React.FC = () => {
 
   const { login, isLoggedIn } = useAuth();
   const router = useRouter();
+
+  if (password.length < 6) {
+    notifyError("Password must be at least 6 characters");
+    return;
+  }
+
+  if (!email.trim()) {
+    notifyError("Email is required");
+    return;
+  }
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -27,8 +38,8 @@ export const Signin: React.FC = () => {
     try {
       await login(email, password);
       router.push("/dashboard");
-    } catch (error) {
-      console.log("Error logging in", error);
+    } catch (error: any) {
+      notifyError(error?.message || "Something went wrong. Please try again.");
     }
   };
 

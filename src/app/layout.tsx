@@ -3,6 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthContextProvider } from "@/context/authcontext";
 import { AnalyseContextProvider } from "../context/analyseContext";
+import { Notifications } from "@mantine/notifications";
+import { MantineProvider } from "@mantine/core";
+import "@mantine/notifications/styles.css";
+import "@mantine/core/styles.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +33,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AnalyseContextProvider>
-          <AuthContextProvider>{children}</AuthContextProvider>
-        </AnalyseContextProvider>
+        <MantineProvider theme={{ defaultRadius: "md" }}>
+          <Notifications position="bottom-right" zIndex={1000} limit={3} />
+
+          <AnalyseContextProvider>
+            <AuthContextProvider>{children}</AuthContextProvider>
+          </AnalyseContextProvider>
+        </MantineProvider>
       </body>
     </html>
   );

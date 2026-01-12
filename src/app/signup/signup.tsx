@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { useRouter } from "next/navigation";
+import { notifyError } from "../lib/notify";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -21,24 +22,24 @@ const Signup: React.FC = () => {
     e.preventDefault();
 
     if (password.trim() !== confirmPassword.trim()) {
-      alert("Passwords do not match");
+      notifyError("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      alert("Password should be of atleast 6 Characters");
+      notifyError("Password must be at least 6 characters");
       return;
     }
 
     if (!email.trim()) {
-      return alert("Email is required");
+      notifyError("Email is required");
+      return;
     }
 
     try {
       await signup(email, password, username);
-      router.push("/dashboard");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      notifyError(error?.message || "Something went wrong. Please try again.");
     }
   };
 
