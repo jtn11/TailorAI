@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthContextProvider } from "@/context/authcontext";
-import { AnalyseContextProvider } from "../context/analyseContext";
 import { Notifications } from "@mantine/notifications";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/notifications/styles.css";
@@ -35,10 +34,7 @@ export default function RootLayout({
       >
         <MantineProvider theme={{ defaultRadius: "md" }}>
           <Notifications position="bottom-right" zIndex={1000} limit={3} />
-
-          <AnalyseContextProvider>
             <AuthContextProvider>{children}</AuthContextProvider>
-          </AnalyseContextProvider>
         </MantineProvider>
       </body>
     </html>
