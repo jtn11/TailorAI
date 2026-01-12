@@ -14,16 +14,6 @@ export const Signin: React.FC = () => {
   const { login, isLoggedIn } = useAuth();
   const router = useRouter();
 
-  if (password.length < 6) {
-    notifyError("Password must be at least 6 characters");
-    return;
-  }
-
-  if (!email.trim()) {
-    notifyError("Email is required");
-    return;
-  }
-
   useEffect(() => {
     if (isLoggedIn) {
       router.push("/dashboard");
@@ -35,6 +25,15 @@ export const Signin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password.length < 6) {
+      notifyError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (!email.trim()) {
+      notifyError("Email is required");
+      return;
+    }
     try {
       await login(email, password);
       router.push("/dashboard");
