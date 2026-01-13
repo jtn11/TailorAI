@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <MantineProvider theme={{ defaultRadius: "md" }}>
           <Notifications position="bottom-right" zIndex={1000} limit={3} />
-            <AuthContextProvider>{children}</AuthContextProvider>
+          <AuthContextProvider>{children}</AuthContextProvider>
         </MantineProvider>
       </body>
     </html>
