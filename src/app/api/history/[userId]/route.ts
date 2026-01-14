@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { userId: string } },
+  { params }: { params: Promise <{ userId: string }> },
 ) {
   try {
-    const userId = params.userId;
+    const {userId} = await params;
 
     if (!userId) {
       return NextResponse.json({ error: "userId missing" }, { status: 400 });
