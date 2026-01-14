@@ -1,9 +1,7 @@
 export const runtime = "nodejs";
+import { analyzeResume } from "@/app/services/analyze";
 import { db } from "@/firebase/firebase-admin";
-import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(req: Request) {
   try {
@@ -17,42 +15,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-
-    const prompt = `
-        Analyze this resume for a job match.
-
-        Resume:
-        ${text}
-
-        Job Description: ${jobDescription}
-
-        RETURN ONLY pure JSON.
-        NO markdown.
-        NO explanation.
-        NO extra text.
-        NO backticks.
-        jobDescription (in two -three words) 
-        matchScore (decimal value between 0-1)
-
-        Use EXACT schema:
-
-        {
-          "matchScore": number,
-          "missingSkills": string[],
-          "missingKeywords": string[],
-          "suggestions": string[],
-          "coverLetter": string,
-          "jobDescription" : string,
-          "date": string (should be the current date)
-        } `;
-
-    const response = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const raw = response.choices[0].message.content?.trim() ?? "";
-
+    const raw = await analyzeResume(text, jobDescription);
     let parsed;
 
     try {
