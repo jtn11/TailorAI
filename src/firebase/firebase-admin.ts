@@ -1,18 +1,29 @@
 import admin from "firebase-admin";
 
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_KEY as string);
+let app: admin.app.App | null = null;
 
-  admin.initializeApp({
+export function getAdminApp() {
+  if (app) return app;
+
+  if (!process.env.FIREBASE_ADMIN_KEY) {
+    throw new Error("Missing FIREBASE_ADMIN_KEY");
+  }
+
+  const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
+  app = admin.initializeApp({
     credential: admin.credential.cert({
       projectId: serviceAccount.project_id,
       clientEmail: serviceAccount.client_email,
       privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
     }),
   });
+  return app;
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
+export function getAdminDb() {
+  return getAdminApp().firestore();
+}
 
-export { admin, db, auth };
+export function getAdminAuth() {
+  return getAdminApp().auth();
+}

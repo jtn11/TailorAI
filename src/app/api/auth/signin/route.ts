@@ -1,10 +1,12 @@
-import { admin } from "@/firebase/firebase-admin";
+import { getAdminAuth } from "@/firebase/firebase-admin";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const { idToken } = await req.json();
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const adminAuth = getAdminAuth();
+
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
     const response = NextResponse.json({ success: true });
     response.cookies.set("session", idToken, {
       httpOnly: true,

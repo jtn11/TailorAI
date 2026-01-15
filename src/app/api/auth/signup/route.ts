@@ -1,10 +1,20 @@
-import { admin as adminAuth, db as adminDb } from "@/firebase/firebase-admin";
+import { getAdminAuth, getAdminDb } from "@/firebase/firebase-admin";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const { email, password, username } = await req.json();
-    const user = await adminAuth.auth().createUser({
+    if (!email || !password || !username) {
+      return NextResponse.json(
+        { message: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
+
+    const user = await adminAuth.createUser({
       email,
       password,
       displayName: username,

@@ -1,11 +1,6 @@
 "use client";
-import { app } from "@/firebase/firebase";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { getfirebaseApp } from "@/firebase/firebase";
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -18,8 +13,6 @@ interface AuthcontextType {
   currentUser: any;
 }
 
-const auth = getAuth(app);
-
 const Authcontext = createContext<AuthcontextType | undefined>(undefined);
 
 export const AuthContextProvider = ({
@@ -29,6 +22,7 @@ export const AuthContextProvider = ({
 }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userid, setUserid] = useState<string | null>(null);
+  const [auth, setAuth] = useState<any>(null);
 
   const router = useRouter();
 
@@ -69,7 +63,13 @@ export const AuthContextProvider = ({
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const app = getfirebaseApp();
+    if (!app) return;
+
+    const authInstance = getAuth(app);
+    setAuth(authInstance);
+
+    const unsubscribe = authInstance.onAuthStateChanged((user) => {
       setCurrentUser(user);
       if (user) {
         console.log("userUID", user.uid);
