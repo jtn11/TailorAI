@@ -1,12 +1,13 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 export async function analyzeResume(text: string, jobDescription: string) {
+
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
   const prompt = `
         Analyze this resume for a job match.
 
-        Resume:
+        Resume:=
         ${text}
 
         Job Description: ${jobDescription}
