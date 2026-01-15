@@ -3,11 +3,11 @@ import { NextResponse , NextRequest } from "next/server";
 
 export async function GET(
   request : NextRequest , 
-  context : { params: { userId : string } },
+  context: { params: Promise<{ userId: string }> }  
  ){
   const db = getAdminDb();
   try {
-    const { userId } = context.params ;
+    const { userId } = await context.params ;
 
     if (!userId) {
       return NextResponse.json({ error: "userId missing" }, { status: 400 });
