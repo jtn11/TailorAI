@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 import { analyzeResume } from "@/app/services/analyze";
-import { db } from "@/firebase/firebase-admin";
+import { getAdminDb } from "@/firebase/firebase-admin";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+    const db = getAdminDb();
     const raw = await analyzeResume(text, jobDescription);
     let parsed;
 

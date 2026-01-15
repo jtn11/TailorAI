@@ -1,13 +1,14 @@
 import { getUserFromAuth } from "@/app/lib/getUserFromAuth";
-import { db } from "@/firebase/firebase-admin";
+import { getAdminDb } from "@/firebase/firebase-admin";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }>},
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = await getUserFromAuth(req);
   const { id } = await params;
+  const db = getAdminDb();
 
   try {
     await db
