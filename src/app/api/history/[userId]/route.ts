@@ -1,10 +1,13 @@
 import { getAdminDb } from "@/firebase/firebase-admin";
-import { NextResponse } from "next/server";
+import { NextResponse , NextRequest } from "next/server";
 
-export async function GET({ params }: { params: Promise<{ userId: string }> }) {
+export async function GET(
+  request : NextRequest , 
+  context : { params: { userId : string } },
+ ){
   const db = getAdminDb();
   try {
-    const { userId } = await params;
+    const { userId } = context.params ;
 
     if (!userId) {
       return NextResponse.json({ error: "userId missing" }, { status: 400 });

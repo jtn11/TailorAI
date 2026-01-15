@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  context : { params: { id: string }},
 ) {
   const userId = await getUserFromAuth(req);
-  const { id } = await params;
+  const { id } = context.params;
   const db = getAdminDb();
 
   try {
