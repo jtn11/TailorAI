@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,4 +13,14 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+export function getfirebaseApp() {
+  if (typeof window === "undefined") {
+    // Server: don’t initialize Firebase client
+    return null;
+  }
+  if (!getApps().length) {
+    return initializeApp(firebaseConfig);
+  }
+
+  return getApps()[0];
+}
