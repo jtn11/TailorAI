@@ -102,13 +102,13 @@ const LandingPage: React.FC = () => {
               </a>
               <div className="flex flex-col space-y-2 pt-4 border-t border-slate-700">
                 <button
-                  //   onClick={() => openAuthModal('signin')}
+                  onClick={() => router.push("/signin")}
                   className="w-full px-4 py-2 text-white hover:text-blue-400 transition font-medium"
                 >
                   Sign In
                 </button>
                 <button
-                  //   onClick={() => openAuthModal('signup')}
+                  onClick={() => router.push("/signup")}
                   className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition font-medium"
                 >
                   Sign Up
