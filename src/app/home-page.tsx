@@ -11,10 +11,20 @@ import {
   Target,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/authcontext";
 
 const LandingPage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
+
+  function getStarted() {
+    if (isLoggedIn) {
+      router.push("/dashboard");
+    } else {
+      router.push("/signup");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
@@ -143,7 +153,7 @@ const LandingPage: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              //   onClick={() => openAuthModal('signup')}
+              onClick={getStarted}
               className="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition flex items-center space-x-2 text-lg"
             >
               <span>Get Started</span>
@@ -337,7 +347,7 @@ const LandingPage: React.FC = () => {
             with TailorAI
           </p>
           <button
-            // onClick={() => openAuthModal('signup')}
+            onClick={getStarted}  
             className="px-10 py-4 bg-white text-blue-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition"
           >
             Get Started for Free
