@@ -5,15 +5,10 @@ import { useState } from "react";
 
 interface Props {
   analysis: AnalysisResult;
-  generateCoverLetter: boolean;
   onReset: () => void;
 }
 
-export const AnalysedResult = ({
-  analysis,
-  generateCoverLetter,
-  onReset,
-}: Props) => {
+export const AnalysedResult = ({ analysis, onReset }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   console.log("Data fetched ", analysis);
 
@@ -106,29 +101,27 @@ export const AnalysedResult = ({
       </div>
 
       {/* Cover Letter */}
-      {generateCoverLetter && analysis?.coverLetter && (
-        <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
-          <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
-          <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
-            <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
-              {analysis && analysis.coverLetter}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => handleCopy(analysis?.coverLetter || "", 0)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2"
-            >
-              <Copy size={18} />
-              <span>{copiedIndex === 0 ? "Copied!" : "Copy to Clipboard"}</span>
-            </button>
-            <button className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2">
-              <Download size={18} />
-              <span>Download</span>
-            </button>
-          </div>
+      <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
+        <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
+        <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
+          <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
+            {analysis ? analysis.coverLetter : "No cover letter generated yet."}
+          </p>
         </div>
-      )}
+        <div className="flex gap-3">
+          <button
+            onClick={() => handleCopy(analysis?.coverLetter || "", 0)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2"
+          >
+            <Copy size={18} />
+            <span>{copiedIndex === 0 ? "Copied!" : "Copy to Clipboard"}</span>
+          </button>
+          <button className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2">
+            <Download size={18} />
+            <span>Download</span>
+          </button>
+        </div>
+      </div>
 
       {/* Reset Button */}
       <button

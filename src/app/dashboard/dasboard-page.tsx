@@ -84,11 +84,7 @@ const AnalysisDashboard: React.FC = () => {
               fetchHistory={fetchHistory}
             />
           ) : (
-            <AnalysedResult
-              analysis={analysis}
-              generateCoverLetter={generateCoverLetter}
-              onReset={handleReset}
-            />
+            <AnalysedResult analysis={analysis} onReset={handleReset} />
           )}
         </div>
       </main>

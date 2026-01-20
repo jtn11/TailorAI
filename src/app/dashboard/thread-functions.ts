@@ -8,7 +8,7 @@ export const FetchChatThread = async (userid: string) => {
       jobDescription: items.data.jobDescription,
       matchScore: items.data.matchScore,
       date: items.data.date,
-      coverLetter: items.coverLetter,
+      coverLetter: items.data.coverLetter,
       missingSkills: items.data.missingSkills,
       missingKeywords: items.data.missingKeywords,
       suggestions: items.data.suggestions,

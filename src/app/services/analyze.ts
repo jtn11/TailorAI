@@ -18,7 +18,7 @@ export async function analyzeResume(text: string, jobDescription: string) {
         NO backticks.
         jobDescription (in two -three words) 
         matchScore (decimal value between 0-1)
-
+        missingKeywords, missingSkills, and suggestions MUST always be arrays, If there are no values, return an empty array [].
         Use EXACT schema:
 
         {

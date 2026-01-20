@@ -347,7 +347,7 @@ const LandingPage: React.FC = () => {
             with TailorAI
           </p>
           <button
-            onClick={getStarted}  
+            onClick={getStarted}
             className="px-10 py-4 bg-white text-blue-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition"
           >
             Get Started for Free

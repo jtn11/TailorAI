@@ -37,7 +37,7 @@ export const CreateNewThread = ({
   const { userid } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // <-- get the uploaded file
+    const file = e.target.files?.[0];
 
     if (!file) return;
 
