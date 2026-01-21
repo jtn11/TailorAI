@@ -11,6 +11,7 @@ interface AuthcontextType {
   isLoggedIn: boolean;
   userid?: string | null;
   currentUser: any;
+  username: string | null;
 }
 
 const Authcontext = createContext<AuthcontextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export const AuthContextProvider = ({
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userid, setUserid] = useState<string | null>(null);
   const [auth, setAuth] = useState<any>(null);
+  const [username, setUsername] = useState<string | null>("");
 
   const router = useRouter();
 
@@ -74,6 +76,7 @@ export const AuthContextProvider = ({
       if (user) {
         console.log("userUID", user.uid);
         setUserid(user.uid);
+        setUsername(user.displayName);
       } else {
         return;
       }
@@ -86,7 +89,15 @@ export const AuthContextProvider = ({
 
   return (
     <Authcontext.Provider
-      value={{ login, signup, logout, isLoggedIn, userid, currentUser }}
+      value={{
+        login,
+        signup,
+        logout,
+        isLoggedIn,
+        userid,
+        currentUser,
+        username,
+      }}
     >
       {children}
     </Authcontext.Provider>

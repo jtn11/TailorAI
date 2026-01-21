@@ -7,4 +7,5 @@ export interface AnalysisResult {
   coverLetter?: string;
   jobDescription?: string;
   date?: string;
+  username?: string;
 }

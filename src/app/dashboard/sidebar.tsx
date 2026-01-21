@@ -1,5 +1,11 @@
 "use client";
-import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
+import {
+  Clock,
+  LogOut,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { AnalysisResult } from "@/types/analysis";
 
@@ -20,7 +26,7 @@ export const DashboardSidebar = ({
   historyThreads,
   setCurrentThreads,
 }: DashboardSidebarProps) => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, username } = useAuth();
 
   const handleDeleteThread = async (id: string) => {
     const token = await currentUser.getIdToken();
@@ -44,7 +50,15 @@ export const DashboardSidebar = ({
       <div className="h-full flex flex-col">
         {/* Sidebar Header */}
         <div className="h-20 border-b border-slate-700 flex items-center justify-between px-6">
-          <h3 className="text-lg font-bold">History</h3>
+          <button
+            className="w-full flex items-center space-x-2 text-gray-300 transition font-medium"
+            onClick={logout}
+          >
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-[11px] font-semibold leading-none text-white select-none">
+              {username?.trim()?.[0]?.toUpperCase() ?? "?"}
+            </div>
+            <span>{username}</span>
+          </button>
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-white transition"
