@@ -1,5 +1,6 @@
 "use client";
 import { AnalysisResult } from "@/types/analysis";
+import jsPDF from "jspdf";
 import { AlertCircle, CheckCircle, Copy, Download } from "lucide-react";
 import { useState } from "react";
 
@@ -16,6 +17,14 @@ export const AnalysedResult = ({ analysis, onReset }: Props) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleDownload = (text: string) => {
+    if (!text) return;
+    const doc = new jsPDF();
+    const splitText = doc.splitTextToSize(text, 180);
+    doc.text(splitText, 15, 20);
+    doc.save("cover-letter.pdf");
   };
 
   return (
@@ -105,18 +114,23 @@ export const AnalysedResult = ({ analysis, onReset }: Props) => {
         <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
         <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
           <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
-            {analysis ? analysis.coverLetter : "No cover letter generated yet."}
+            {analysis?.coverLetter || "No cover letter generated yet."}
           </p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => handleCopy(analysis?.coverLetter || "", 0)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2"
+            disabled={!analysis?.coverLetter}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Copy size={18} />
             <span>{copiedIndex === 0 ? "Copied!" : "Copy to Clipboard"}</span>
           </button>
-          <button className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2">
+          <button
+            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handleDownload(analysis?.coverLetter || "")}
+            disabled={!analysis?.coverLetter}
+          >
             <Download size={18} />
             <span>Download</span>
           </button>

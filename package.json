@@ -16,6 +16,7 @@
     "firebase": "^12.4.0",
     "firebase-admin": "^13.6.0",
     "groq-sdk": "^0.35.0",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.545.0",
     "multer": "^2.0.2",
     "next": "^16.1.2",
