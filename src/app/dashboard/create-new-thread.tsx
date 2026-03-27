@@ -120,7 +120,9 @@ export const CreateNewThread = ({
         </div>
       </div>
 
-      <div className="flex items-center space-x-3 mb-8">
+      {/* temporary removed generate CoverLetter */}
+      
+      {/* <div className="flex items-center space-x-3 mb-8">
         <label className="flex items-center space-x-3 text-gray-300 cursor-pointer group">
           <input
             type="checkbox"
@@ -132,7 +134,7 @@ export const CreateNewThread = ({
             Generate cover letter
           </span>
         </label>
-      </div>
+      </div> */}
 
       {/* Analyze Button */}
       <button
