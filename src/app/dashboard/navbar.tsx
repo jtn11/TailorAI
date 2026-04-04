@@ -14,7 +14,7 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen }: Navbar) => {
 
   return (
     <header className="bg-slate-800 bg-opacity-50 backdrop-blur border-b border-slate-700">
-      <div className="px-6 py-6 flex items-center justify-between">
+      <div className="px-6 py-5 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

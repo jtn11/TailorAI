@@ -1,11 +1,5 @@
 "use client";
-import {
-  Clock,
-  LogOut,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { AnalysisResult } from "@/types/analysis";
 
@@ -47,7 +41,7 @@ export const DashboardSidebar = ({
     <aside
       className={`fixed md:sticky left-0 top-0 h-screen bg-slate-900 border-r border-slate-700 transition-all duration-300 z-40 overflow-hidden ${sidebarOpen ? "w-72" : "w-0"}`}
     >
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col w-72">
         {/* Sidebar Header */}
         <div className="h-20 border-b border-slate-700 flex items-center justify-between px-6">
           <button

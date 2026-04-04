@@ -42,50 +42,65 @@ const AnalysisDashboard: React.FC = () => {
   }, [userid]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 opacity-10 rounded-full blur-3xl"></div>
+    <div className="h-screen bg-[#060e20] text-slate-100 flex relative overflow-hidden font-sans">
+      {/* Ambient Animated Glows */}
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[100px] mix-blend-screen animate-pulse duration-10000"></div>
+      <div
+        className="pointer-events-none absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[100px] mix-blend-screen animate-pulse duration-10000"
+        style={{ animationDelay: "2s" }}
+      ></div>
+      <div className="pointer-events-none absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-sky-500/5 rounded-full blur-[120px] mix-blend-screen"></div>
 
-      {sidebarOpen && (
-        <DashboardSidebar
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          setAnalysis={setAnalysis}
-          handleReset={handleReset}
-          historyThreads={historyThreads}
-          setCurrentThreads={setCurrentThreads}
-        />
-      )}
+      <DashboardSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        setAnalysis={setAnalysis}
+        handleReset={handleReset}
+        historyThreads={historyThreads}
+        setCurrentThreads={setCurrentThreads}
+      />
+
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-300">
-        <Navbar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
+      <main className="flex-1 transition-all duration-500 ease-in-out relative z-10 flex flex-col h-screen min-w-0">
+        <div className="z-50 bg-[#060e20]/80 backdrop-blur-md border-b border-slate-800/50 flex-none">
+          <Navbar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
+        </div>
 
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-2">Resume Analyzer</h2>
-            <p className="text-gray-400 text-lg">
-              Upload your resume and job description to get instant analysis
-            </p>
+        <div className="flex-1 overflow-y-auto w-full pb-10">
+          <div className="max-w-7xl mx-auto px-6 py-10 w-full flex flex-col">
+            <div className="text-center mb-16 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+              <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-sky-300">
+                Resume Analyzer
+              </h2>
+              <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+                Upload your resume and job description to get instant, AI-driven
+                analysis of your profile match.
+              </p>
+            </div>
+
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both flex-1 flex flex-col">
+              {!analysis ? (
+                <CreateNewThread
+                  setFileName={setFileName}
+                  setResumeText={setResumeText}
+                  setJobDescription={setJobDescription}
+                  fileName={fileName}
+                  jobDescription={jobDescription}
+                  generateCoverLetter={generateCoverLetter}
+                  setGenerateCoverLetter={setGenerateCoverLetter}
+                  text={text}
+                  setAnalysis={setAnalysis}
+                  setLoading={setLoading}
+                  loading={loading}
+                  fetchHistory={fetchHistory}
+                />
+              ) : (
+                <div className="animate-in zoom-in-95 duration-500">
+                  <AnalysedResult analysis={analysis} onReset={handleReset} />
+                </div>
+              )}
+            </div>
           </div>
-
-          {!analysis ? (
-            <CreateNewThread
-              setFileName={setFileName}
-              setResumeText={setResumeText}
-              setJobDescription={setJobDescription}
-              fileName={fileName}
-              jobDescription={jobDescription}
-              generateCoverLetter={generateCoverLetter}
-              setGenerateCoverLetter={setGenerateCoverLetter}
-              text={text}
-              setAnalysis={setAnalysis}
-              setLoading={setLoading}
-              loading={loading}
-              fetchHistory={fetchHistory}
-            />
-          ) : (
-            <AnalysedResult analysis={analysis} onReset={handleReset} />
-          )}
         </div>
       </main>
     </div>
