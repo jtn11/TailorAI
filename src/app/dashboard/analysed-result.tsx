@@ -1,7 +1,7 @@
 "use client";
 import { AnalysisResult } from "@/types/analysis";
 import jsPDF from "jspdf";
-import { AlertCircle, CheckCircle, Copy, Download } from "lucide-react";
+import { AlertCircle, CheckCircle, Copy, Download, Search, Briefcase } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -135,6 +135,28 @@ export const AnalysedResult = ({ analysis, onReset }: Props) => {
             <span>Download</span>
           </button>
         </div>
+      </div>
+
+      {/* Job Search Section */}
+      <div className="bg-gradient-to-r from-blue-900/40 to-cyan-900/40 border border-blue-700/50 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+        {/* Decorative background glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform group-hover:scale-110 duration-700"></div>
+
+        <div className="flex items-start md:items-center space-x-4 relative z-10">
+          <div className="bg-blue-500/20 p-4 rounded-xl border border-blue-500/30 flex-shrink-0">
+            <Briefcase className="w-8 h-8 text-blue-400" />
+          </div>
+          <div className="text-left">
+            <h3 className="text-xl font-bold text-white mb-2">Find Relevant Jobs</h3>
+            <p className="text-slate-400 text-sm max-w-lg leading-relaxed">
+              Ready to apply? Let us scan the web for active job openings that perfectly match your updated profile and resume.
+            </p>
+          </div>
+        </div>
+        <button className="w-full md:w-auto relative z-10 whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-blue-900/40 border border-blue-400/50 transform hover:-translate-y-0.5">
+          <Search size={20} />
+          <span>Search Jobs on Web</span>
+        </button>
       </div>
 
       {/* Reset Button */}
