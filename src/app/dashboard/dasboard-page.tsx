@@ -4,6 +4,7 @@ import { DashboardSidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { AnalysedResult } from "./analysed-result";
 import { CreateNewThread } from "./create-new-thread";
+import { JobSearchResults } from "./job-search-results";
 import { AnalysisResult } from "@/types/analysis";
 import { FetchChatThread } from "./thread-functions";
 import { useAuth } from "@/context/authcontext";
@@ -16,6 +17,7 @@ const AnalysisDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [showJobs, setShowJobs] = useState<boolean>(false);
   const [text, setResumeText] = useState<string>("");
   const [historyThreads, setCurrentThreads] = useState<AnalysisResult[]>([]);
 
@@ -27,6 +29,7 @@ const AnalysisDashboard: React.FC = () => {
     setJobDescription("");
     setGenerateCoverLetter(false);
     setResumeText("");
+    setShowJobs(false);
   };
 
   const fetchHistory = async () => {
@@ -68,15 +71,17 @@ const AnalysisDashboard: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto w-full pb-10">
           <div className="max-w-7xl mx-auto px-6 py-10 w-full flex flex-col">
-            <div className="text-center mb-16 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
-              <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-sky-300">
-                Resume Analyzer
-              </h2>
-              <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto">
-                Upload your resume and job description to get instant, AI-driven
-                analysis of your profile match.
-              </p>
-            </div>
+            {!showJobs && (
+              <div className="text-center mb-16 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+                <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-200 to-sky-300">
+                  Resume Analyzer
+                </h2>
+                <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+                  Upload your resume and job description to get instant, AI-driven
+                  analysis of your profile match.
+                </p>
+              </div>
+            )}
 
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both flex-1 flex flex-col">
               {!analysis ? (
@@ -94,9 +99,13 @@ const AnalysisDashboard: React.FC = () => {
                   loading={loading}
                   fetchHistory={fetchHistory}
                 />
+              ) : showJobs ? (
+                <div className="animate-in zoom-in-95 duration-500">
+                  <JobSearchResults onBack={() => setShowJobs(false)} />
+                </div>
               ) : (
                 <div className="animate-in zoom-in-95 duration-500">
-                  <AnalysedResult analysis={analysis} onReset={handleReset} />
+                  <AnalysedResult analysis={analysis} onReset={handleReset} onSearchJobs={() => setShowJobs(true)} />
                 </div>
               )}
             </div>
