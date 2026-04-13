@@ -7,9 +7,10 @@ import { useState } from "react";
 interface Props {
   analysis: AnalysisResult;
   onReset: () => void;
+  onSearchJobs: () => void;
 }
 
-export const AnalysedResult = ({ analysis, onReset }: Props) => {
+export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   console.log("Data fetched ", analysis);
 
@@ -153,7 +154,10 @@ export const AnalysedResult = ({ analysis, onReset }: Props) => {
             </p>
           </div>
         </div>
-        <button className="w-full md:w-auto relative z-10 whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-blue-900/40 border border-blue-400/50 transform hover:-translate-y-0.5">
+        <button 
+          onClick={onSearchJobs}
+          className="w-full md:w-auto relative z-10 whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-blue-900/40 border border-blue-400/50 transform hover:-translate-y-0.5"
+        >
           <Search size={20} />
           <span>Search Jobs on Web</span>
         </button>
