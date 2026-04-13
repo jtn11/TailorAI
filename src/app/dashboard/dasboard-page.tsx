@@ -101,7 +101,10 @@ const AnalysisDashboard: React.FC = () => {
                 />
               ) : showJobs ? (
                 <div className="animate-in zoom-in-95 duration-500">
-                  <JobSearchResults onBack={() => setShowJobs(false)} />
+                  <JobSearchResults 
+                    onBack={() => setShowJobs(false)} 
+                    initialQuery={analysis?.jobDescription ? `${analysis.jobDescription.substring(0, 40)}...` : ""}
+                  />
                 </div>
               ) : (
                 <div className="animate-in zoom-in-95 duration-500">
