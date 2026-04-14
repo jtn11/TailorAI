@@ -32,6 +32,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
   // Form input states
   const [searchRole, setSearchRole] = useState<string>(initialQuery || "Developer");
   const [searchLocation, setSearchLocation] = useState<string>("");
+  const [searchExperience, setSearchExperience] = useState<string>("");
   const [isRemote, setIsRemote] = useState<boolean>(false);
 
   useEffect(() => {
@@ -64,6 +65,9 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
 
   const compileQuery = () => {
     let q = searchRole.trim() || "Developer";
+    if (searchExperience) {
+      q = `${searchExperience} ${q}`;
+    }
     if (searchLocation.trim()) {
       q += ` in ${searchLocation.trim()}`;
     }
@@ -113,7 +117,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
         </div>
         
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex flex-col gap-3 w-full md:w-[28rem]">
+        <form onSubmit={handleSearch} className="flex flex-col gap-3 w-full md:w-[32rem]">
           <div className="flex flex-col sm:flex-row shadow-inner bg-[#0b1221] border border-slate-700 rounded-lg overflow-hidden focus-within:border-blue-500 transition-colors">
             {/* What */}
             <div className="flex-1 relative flex items-center border-b sm:border-b-0 sm:border-r border-slate-700">
@@ -147,16 +151,32 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
             </div>
           </div>
           
-          {/* Remote Toggle */}
-          <label className="flex items-center space-x-2 text-sm text-slate-400 cursor-pointer self-end md:self-start group">
-            <input 
-              type="checkbox" 
-              checked={isRemote}
-              onChange={(e) => setIsRemote(e.target.checked)}
-              className="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer"
-            />
-            <span className="group-hover:text-slate-300 transition-colors">Remote positions only</span>
-          </label>
+          <div className="flex flex-row justify-between items-center w-full px-1">
+            {/* Experience Dropdown */}
+            <select
+              value={searchExperience}
+              onChange={(e) => setSearchExperience(e.target.value)}
+              className="bg-[#0b1221] border border-slate-700 text-slate-300 text-sm rounded-md py-1 px-2 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-slate-500 transition-colors"
+            >
+              <option value="">Any Experience</option>
+              <option value="Internship">Internship</option>
+              <option value="Entry Level">Entry Level</option>
+              <option value="Mid Level">Mid Level</option>
+              <option value="Senior">Senior</option>
+              <option value="Director">Director / Executive</option>
+            </select>
+
+            {/* Remote Toggle */}
+            <label className="flex items-center space-x-2 text-sm text-slate-400 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                checked={isRemote}
+                onChange={(e) => setIsRemote(e.target.checked)}
+                className="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer"
+              />
+              <span className="group-hover:text-slate-300 transition-colors">Remote positions only</span>
+            </label>
+          </div>
         </form>
       </div>
 
