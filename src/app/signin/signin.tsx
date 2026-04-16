@@ -43,11 +43,13 @@ export const Signin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 max-w-full flex items-center justify-center p-4">
-      
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-10000"></div>
-      <div className="pointer-events-none absolute top-1/4 right-0 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDelay: "2s" }}></div>
-      <div className="pointer-events-none absolute bottom-0 left-1/3 w-[800px] h-[800px] bg-indigo-500/20 rounded-full blur-[150px] mix-blend-screen animate-pulse" style={{ animationDelay: "4s" }}></div>
+      <div className="min-h-screen bg-[#060e20] text-slate-100 overflow-hidden font-sans max-w-full flex items-center justify-center p-4 selection:bg-blue-500/30">
+
+
+      <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-10000"></div>
+      <div className="pointer-events-none absolute top-1/4 right-0 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDelay: "2s" }}></div>
+      <div className="pointer-events-none absolute bottom-0 left-1/3 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[150px] mix-blend-screen animate-pulse" style={{ animationDelay: "4s" }}></div>
+
 
       <div className="relative w-full max-w-md">
         <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
