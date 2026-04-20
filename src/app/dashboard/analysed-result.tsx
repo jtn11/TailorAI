@@ -2,7 +2,7 @@
 import { AnalysisResult } from "@/types/analysis";
 import jsPDF from "jspdf";
 import { AlertCircle, CheckCircle, Copy, Download, Search, Briefcase } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
   analysis: AnalysisResult;
@@ -12,6 +12,14 @@ interface Props {
 
 export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [editedCoverLetter, setEditedCoverLetter] = useState<string>(analysis?.coverLetter || "");
+
+  useEffect(() => {
+    if (analysis?.coverLetter) {
+      setEditedCoverLetter(analysis.coverLetter);
+    }
+  }, [analysis?.coverLetter]);
+
   console.log("Data fetched ", analysis);
 
   const handleCopy = (text: string, index: number) => {
@@ -113,15 +121,19 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
       {/* Cover Letter */}
       <div className="bg-slate-800 bg-opacity-50 backdrop-blur border border-slate-700 rounded-2xl p-8">
         <h3 className="text-xl font-bold mb-4">Generated Cover Letter</h3>
-        <div className="bg-slate-900 p-6 rounded-lg border border-slate-600 mb-4">
-          <p className="text-gray-300 whitespace-pre-line text-sm leading-relaxed">
-            {analysis?.coverLetter || "No cover letter generated yet."}
-          </p>
+        <div className="bg-slate-900 p-1 rounded-lg border border-slate-600 mb-4 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+          <textarea
+            className="w-full bg-transparent text-gray-300 text-sm leading-relaxed p-5 outline-none resize-y min-h-[300px]"
+            value={editedCoverLetter}
+            onChange={(e) => setEditedCoverLetter(e.target.value)}
+            placeholder="No cover letter generated yet."
+            disabled={!analysis?.coverLetter}
+          />
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => handleCopy(analysis?.coverLetter || "", 0)}
-            disabled={!analysis?.coverLetter}
+            onClick={() => handleCopy(editedCoverLetter || "", 0)}
+            disabled={!editedCoverLetter}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Copy size={18} />
@@ -129,8 +141,8 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           </button>
           <button
             className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => handleDownload(analysis?.coverLetter || "")}
-            disabled={!analysis?.coverLetter}
+            onClick={() => handleDownload(editedCoverLetter || "")}
+            disabled={!editedCoverLetter}
           >
             <Download size={18} />
             <span>Download</span>
