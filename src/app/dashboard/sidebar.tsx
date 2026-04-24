@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { AnalysisResult } from "@/types/analysis";
@@ -21,6 +22,11 @@ export const DashboardSidebar = ({
   setCurrentThreads,
 }: DashboardSidebarProps) => {
   const { currentUser, logout, username } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDeleteThread = async (id: string) => {
     const token = await currentUser.getIdToken();
@@ -39,15 +45,19 @@ export const DashboardSidebar = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString; // fallback for older plain text dates
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (e) {
+      return dateString;
+    }
   };
 
   return (
@@ -119,8 +129,8 @@ export const DashboardSidebar = ({
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-500 flex items-center space-x-1.5 font-medium min-w-0">
                   <Clock size={12} className="flex-shrink-0" />
-                  <span className="truncate" suppressHydrationWarning>
-                    {formatDate(thread.date)}
+                  <span className="truncate">
+                    {mounted ? formatDate(thread.date) : "Loading..."}
                   </span>
                 </span>
                 <span
