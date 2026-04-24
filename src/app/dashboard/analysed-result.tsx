@@ -38,16 +38,85 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
 
   return (
     <div className="space-y-8 animate-in fade-in">
-      <div className="bg-gradient-to-r from-blue-900 to-cyan-900 border border-blue-700 rounded-2xl p-8 text-center">
-        <p className="text-gray-300 text-lg mb-2">Overall Match Score</p>
-        <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-6">
-          {analysis && Math.round(analysis.matchScore * 100)}%
-        </div>
-        <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
-          <div
-            className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full transition-all duration-1000"
-            style={{ width: `${analysis && analysis.matchScore * 100}%` }}
-          ></div>
+      {/* Overall Match Score - Compact & Premium Circular Layout */}
+      <div className="relative overflow-hidden bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-[2rem] p-8 sm:p-10 shadow-2xl max-w-xl mx-auto group">
+        {/* Decorative Glowing Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-[3rem] pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
+        <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-[3rem] pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 mb-8 backdrop-blur-md shadow-sm">
+            <span className="text-slate-300 text-xs font-semibold tracking-widest uppercase">Overall Match Score</span>
+          </div>
+          
+          {/* Circular Progress Indicator */}
+          <div className="relative flex items-center justify-center mb-8">
+            <svg className="w-56 h-56 transform -rotate-90 drop-shadow-xl" viewBox="0 0 100 100">
+              {/* Background track */}
+              <circle
+                className="text-slate-800/80"
+                strokeWidth="6"
+                stroke="currentColor"
+                fill="transparent"
+                r="42"
+                cx="50"
+                cy="50"
+              />
+              {/* Animated Progress ring */}
+              <circle
+                className={
+                  analysis && analysis.matchScore >= 0.8
+                    ? "text-emerald-400"
+                    : analysis && analysis.matchScore >= 0.6
+                    ? "text-amber-400"
+                    : "text-rose-400"
+                }
+                strokeWidth="6"
+                strokeDasharray="264"
+                strokeDashoffset={264 - (264 * (analysis ? analysis.matchScore : 0))}
+                strokeLinecap="round"
+                stroke="currentColor"
+                fill="transparent"
+                r="42"
+                cx="50"
+                cy="50"
+                style={{
+                  transition: "stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                  filter: "drop-shadow(0 0 8px currentColor)"
+                }}
+              />
+            </svg>
+            
+            {/* Inner Text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="flex items-start justify-center">
+                <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 tracking-tighter">
+                  {analysis ? Math.round(analysis.matchScore * 100) : 0}
+                </span>
+                <span className="text-3xl font-bold text-slate-500 mt-2">%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Badge */}
+          <div>
+            {analysis && analysis.matchScore >= 0.8 ? (
+              <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-5 py-2.5 rounded-2xl text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold tracking-wide">Excellent Match</span>
+              </div>
+            ) : analysis && analysis.matchScore >= 0.6 ? (
+              <div className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-5 py-2.5 rounded-2xl text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                <AlertCircle className="w-5 h-5" />
+                <span className="font-semibold tracking-wide">Good Potential</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center space-x-2 bg-rose-500/10 border border-rose-500/20 px-5 py-2.5 rounded-2xl text-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.1)]">
+                <AlertCircle className="w-5 h-5" />
+                <span className="font-semibold tracking-wide">Needs Improvement</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
