@@ -21,6 +21,8 @@ export async function POST(req: Request) {
 
     try {
       parsed = JSON.parse(raw);
+      // Override LLM date with accurate current date and time
+      parsed.date = new Date().toISOString();
     } catch (err) {
       console.error("JSON Parse error from model output:", raw);
       return NextResponse.json(

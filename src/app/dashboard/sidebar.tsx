@@ -37,6 +37,19 @@ export const DashboardSidebar = ({
     console.log(deletedThread);
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // fallback for older plain text dates
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <aside
       className={`fixed md:sticky left-0 top-0 h-screen bg-[#060e20] border-r border-slate-800 transition-all duration-300 z-40 overflow-hidden shadow-2xl md:shadow-none ${sidebarOpen ? "w-72" : "w-0"}`}
@@ -106,7 +119,7 @@ export const DashboardSidebar = ({
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-500 flex items-center space-x-1.5 font-medium">
                   <Clock size={12} />
-                  <span>{thread.date}</span>
+                  <span>{formatDate(thread.date)}</span>
                 </span>
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
