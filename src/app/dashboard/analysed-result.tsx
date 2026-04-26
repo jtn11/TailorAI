@@ -20,6 +20,18 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     }
   }, [analysis?.coverLetter]);
 
+  // Safely extract text in case the LLM returned an object (e.g. {title, description}) instead of a string
+  const extractText = (item: any): string => {
+    if (typeof item === "string") return item;
+    if (typeof item === "object" && item !== null) {
+      if (item.title && item.description) return `${item.title}: ${item.description}`;
+      if (item.title) return item.title;
+      if (item.description) return item.description;
+      return JSON.stringify(item);
+    }
+    return String(item);
+  };
+
   console.log("Data fetched ", analysis);
 
   const handleCopy = (text: string, index: number) => {
@@ -58,16 +70,18 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           <span>Missing Keywords</span>
         </h3>
         <div className="flex flex-wrap gap-3">
-          {analysis?.missingKeywords?.map((keyword, idx) => (
+          {analysis?.missingKeywords?.map((keyword, idx) => {
+            const text = extractText(keyword);
+            return (
             <div
               key={idx}
               className="bg-red-900 bg-opacity-30 text-red-300 px-4 py-2 rounded-full text-sm border border-red-700 flex items-center justify-between group hover:bg-opacity-50 transition cursor-pointer"
-              onClick={() => handleCopy(keyword, idx)}
+              onClick={() => handleCopy(text, idx)}
             >
-              <span>{keyword}</span>
+              <span>{text}</span>
               <Copy className="w-3 h-3 ml-2 opacity-0 group-hover:opacity-100 transition" />
             </div>
-          ))}
+          )})}
         </div>
       </div>
 
@@ -78,16 +92,17 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           <span>Areas to Improve</span>
         </h3>
         <ul className="space-y-3">
-          {analysis &&
-            analysis.missingSkills.map((skill, idx) => (
+          {analysis?.missingSkills?.map((skill, idx) => {
+            const text = extractText(skill);
+            return (
               <li
                 key={idx}
                 className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition"
               >
                 <span className="text-yellow-400 mt-1 flex-shrink-0">•</span>
-                <span className="text-gray-300">{skill}</span>
+                <span className="text-gray-300">{text}</span>
               </li>
-            ))}
+            )})}
         </ul>
       </div>
 
@@ -98,8 +113,9 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           <span>Recommendations</span>
         </h3>
         <ul className="space-y-3">
-          {analysis &&
-            analysis.suggestions.map((suggestion, idx) => (
+          {analysis?.suggestions?.map((suggestion, idx) => {
+            const text = extractText(suggestion);
+            return (
               <li
                 key={idx}
                 className="flex items-start space-x-3 p-3 bg-slate-900 rounded-lg hover:bg-opacity-50 transition group cursor-pointer"
@@ -107,14 +123,14 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                 <span className="text-green-400 font-bold mt-1 flex-shrink-0">
                   {idx + 1}
                 </span>
-                <span className="text-gray-300 flex-1">{suggestion}</span>
+                <span className="text-gray-300 flex-1">{text}</span>
                 <Copy
                   size={16}
                   className="text-gray-500 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
-                  onClick={() => handleCopy(suggestion, idx)}
+                  onClick={() => handleCopy(text, idx)}
                 />
               </li>
-            ))}
+            )})}
         </ul>
       </div>
 

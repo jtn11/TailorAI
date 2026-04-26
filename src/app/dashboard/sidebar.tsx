@@ -114,7 +114,9 @@ export const DashboardSidebar = ({
             >
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-2 pr-2 leading-snug">
-                  {thread.jobDescription}
+                  {typeof thread.jobDescription === "object" && thread.jobDescription !== null
+                    ? (thread.jobDescription as any).title || (thread.jobDescription as any).description || "Analyzed Job"
+                    : thread.jobDescription || "Analyzed Job"}
                 </h4>
                 <button
                   onClick={(e) => {
