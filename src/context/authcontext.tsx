@@ -31,17 +31,20 @@ export const AuthContextProvider = ({
 
   const createSession = async (user: any) => {
     const idToken = await user.getIdToken();
-    await fetch("/api/auth/signin", {
+    const res = await fetch("/api/auth/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
     });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to create session");
+    }
   };
 
   const login = async (email: string, password: string) => {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    await createSession(userCred.user);
-    router.push("/dashboard");
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will handle session creation and navigation
   };
 
   const signup = async (email: string, password: string, username: string) => {
@@ -54,18 +57,16 @@ export const AuthContextProvider = ({
       throw new Error("Signup failed");
     }
 
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    await createSession(userCred.user);
-    router.push("/dashboard");
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will handle session creation and navigation
   };
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     try {
-      const userCred = await signInWithPopup(auth, provider);
-      await createSession(userCred.user);
-      router.push("/dashboard");
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged will handle session creation and navigation
     } catch (error: any) {
       if (error.code === "auth/popup-blocked") {
         console.warn("Popup blocked by browser. Falling back to redirect...");
@@ -98,12 +99,17 @@ export const AuthContextProvider = ({
       if (user) {
         try {
           await createSession(user);
+          // Only set user state if session creation succeeded!
+          setCurrentUser(user);
+          setUserid(user.uid);
+          setUsername(user.displayName);
         } catch (e) {
-          console.error("Failed to sync session cookie", e);
+          console.error("Failed to sync session cookie. Signing out.", e);
+          await signOut(authInstance);
+          setCurrentUser(null);
+          setUserid(null);
+          setUsername(null);
         }
-        setCurrentUser(user);
-        setUserid(user.uid);
-        setUsername(user.displayName);
       } else {
         setCurrentUser(null);
         setUserid(null);

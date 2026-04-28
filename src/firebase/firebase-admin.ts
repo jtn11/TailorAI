@@ -10,20 +10,26 @@ export function getAdminApp() {
   }
 
   const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
-  app = admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: serviceAccount.project_id,
-      clientEmail: serviceAccount.client_email,
-      privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
-    }),
-  });
+  
+  if (admin.apps.length === 0) {
+    app = admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: serviceAccount.project_id,
+        clientEmail: serviceAccount.client_email,
+        privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
+      }),
+    });
+  } else {
+    app = admin.apps[0];
+  }
+  
   return app;
 }
 
 export function getAdminDb() {
-  return getAdminApp().firestore();
+  return getAdminApp()!.firestore();
 }
 
 export function getAdminAuth() {
-  return getAdminApp().auth();
+  return getAdminApp()!.auth();
 }

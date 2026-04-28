@@ -16,9 +16,9 @@ export const Signin: React.FC = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push("/dashboard");
-    } else {
-      return;
+      // Use hard navigation to bypass Next.js client-side router cache
+      // which might have cached the middleware redirect from /dashboard to /signin
+      window.location.href = "/dashboard";
     }
   }, [isLoggedIn]);
 

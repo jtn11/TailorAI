@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    console.error("Firebase Admin Error verifying ID token:", error);
+    return NextResponse.json({ message: "Unauthorized", error: String(error) }, { status: 401 });
   }
 }

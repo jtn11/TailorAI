@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,14 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { signup, signInWithGoogle } = useAuth();
+  const { signup, signInWithGoogle, isLoggedIn } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      window.location.href = "/dashboard";
+    }
+  }, [isLoggedIn]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
