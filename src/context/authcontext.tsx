@@ -1,12 +1,13 @@
 "use client";
 import { getfirebaseApp } from "@/firebase/firebase";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthcontextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => void;
   isLoggedIn: boolean;
   userid?: string | null;
@@ -58,6 +59,13 @@ export const AuthContextProvider = ({
     router.push("/dashboard");
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const userCred = await signInWithPopup(auth, provider);
+    await createSession(userCred.user);
+    router.push("/dashboard");
+  };
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     await signOut(auth);
@@ -92,6 +100,7 @@ export const AuthContextProvider = ({
       value={{
         login,
         signup,
+        signInWithGoogle,
         logout,
         isLoggedIn,
         userid,
