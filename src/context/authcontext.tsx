@@ -31,7 +31,7 @@ export const AuthContextProvider = ({
 
   const createSession = async (user: any) => {
     const idToken = await user.getIdToken();
-    await fetch("api/auth/signin", {
+    await fetch("/api/auth/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
@@ -69,7 +69,6 @@ export const AuthContextProvider = ({
     } catch (error: any) {
       if (error.code === "auth/popup-blocked") {
         console.warn("Popup blocked by browser. Falling back to redirect...");
-        // Use redirect method instead
         import("firebase/auth").then(({ signInWithRedirect }) => {
           signInWithRedirect(auth, provider);
         });
@@ -92,26 +91,23 @@ export const AuthContextProvider = ({
     const authInstance = getAuth(app);
     setAuth(authInstance);
 
-    // Handle redirect result if user fell back to signInWithRedirect
-    import("firebase/auth").then(({ getRedirectResult }) => {
-      getRedirectResult(authInstance)
-        .then(async (result) => {
-          if (result && result.user) {
-            await createSession(result.user);
-            router.push("/dashboard");
-          }
-        })
-        .catch(console.error);
-    });
-
-    const unsubscribe = authInstance.onAuthStateChanged((user) => {
-      setCurrentUser(user);
+    // Sync session universally on auth state change. This handles token refreshes
+    // and redirect logins before exposing the user to the application state,
+    // preventing middleware race conditions.
+    const unsubscribe = authInstance.onAuthStateChanged(async (user) => {
       if (user) {
-        console.log("userUID", user.uid);
+        try {
+          await createSession(user);
+        } catch (e) {
+          console.error("Failed to sync session cookie", e);
+        }
+        setCurrentUser(user);
         setUserid(user.uid);
         setUsername(user.displayName);
       } else {
-        return;
+        setCurrentUser(null);
+        setUserid(null);
+        setUsername(null);
       }
     });
 
