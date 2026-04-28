@@ -61,9 +61,22 @@ export const AuthContextProvider = ({
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    const userCred = await signInWithPopup(auth, provider);
-    await createSession(userCred.user);
-    router.push("/dashboard");
+    provider.setCustomParameters({ prompt: "select_account" });
+    try {
+      const userCred = await signInWithPopup(auth, provider);
+      await createSession(userCred.user);
+      router.push("/dashboard");
+    } catch (error: any) {
+      if (error.code === "auth/popup-blocked") {
+        console.warn("Popup blocked by browser. Falling back to redirect...");
+        // Use redirect method instead
+        import("firebase/auth").then(({ signInWithRedirect }) => {
+          signInWithRedirect(auth, provider);
+        });
+      } else {
+        throw error;
+      }
+    }
   };
 
   const logout = async () => {
@@ -78,6 +91,18 @@ export const AuthContextProvider = ({
 
     const authInstance = getAuth(app);
     setAuth(authInstance);
+
+    // Handle redirect result if user fell back to signInWithRedirect
+    import("firebase/auth").then(({ getRedirectResult }) => {
+      getRedirectResult(authInstance)
+        .then(async (result) => {
+          if (result && result.user) {
+            await createSession(result.user);
+            router.push("/dashboard");
+          }
+        })
+        .catch(console.error);
+    });
 
     const unsubscribe = authInstance.onAuthStateChanged((user) => {
       setCurrentUser(user);
