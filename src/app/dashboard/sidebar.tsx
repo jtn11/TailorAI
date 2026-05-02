@@ -11,6 +11,7 @@ interface DashboardSidebarProps {
   handleReset: () => void;
   historyThreads: AnalysisResult[];
   setCurrentThreads: React.Dispatch<React.SetStateAction<AnalysisResult[]>>;
+  setShowJobs: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const DashboardSidebar = ({
@@ -20,6 +21,7 @@ export const DashboardSidebar = ({
   handleReset,
   historyThreads,
   setCurrentThreads,
+  setShowJobs,
 }: DashboardSidebarProps) => {
   const { currentUser, logout, username } = useAuth();
   const [mounted, setMounted] = useState(false);
@@ -109,6 +111,7 @@ export const DashboardSidebar = ({
               onClick={() => {
                 console.log(`Clicked here : ${thread.id}`);
                 setAnalysis(thread);
+                setShowJobs(false);
               }}
               className="p-4 rounded-xl cursor-pointer transition-all duration-200 group bg-slate-800/30 hover:bg-slate-800/80 border border-transparent hover:border-slate-700/80 hover:shadow-lg hover:shadow-black/20"
             >

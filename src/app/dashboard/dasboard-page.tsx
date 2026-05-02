@@ -61,6 +61,7 @@ const AnalysisDashboard: React.FC = () => {
         handleReset={handleReset}
         historyThreads={historyThreads}
         setCurrentThreads={setCurrentThreads}
+        setShowJobs={setShowJobs}
       />
 
       {/* Main Content */}
