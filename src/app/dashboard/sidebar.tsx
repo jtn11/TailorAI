@@ -64,11 +64,11 @@ export const DashboardSidebar = ({
 
   return (
     <aside
-      className={`fixed md:sticky left-0 top-0 h-screen bg-[#060e20] border-r border-slate-800 transition-all duration-300 z-40 overflow-hidden shadow-2xl md:shadow-none ${sidebarOpen ? "w-72" : "w-0"}`}
+      className={`fixed md:sticky left-0 top-0 h-screen bg-[#0c1428] border-r border-[#1a2d4a] transition-all duration-300 z-40 overflow-hidden shadow-2xl md:shadow-none ${sidebarOpen ? "w-72" : "w-0"}`}
     >
       <div className="h-full flex flex-col w-72">
         {/* Sidebar Header */}
-        <div className="h-[88px] border-b border-slate-800/80 flex items-center justify-between px-6 bg-slate-900/20">
+        <div className="h-[88px] border-b border-[#1a2d4a] flex items-center justify-between px-6 bg-[#0b1221]/40">
           <button
             className="flex items-center space-x-3 text-slate-200 transition group w-full"
             onClick={logout}
@@ -78,7 +78,7 @@ export const DashboardSidebar = ({
             </div>
             <div className="flex flex-col text-left">
               <span className="font-semibold text-sm group-hover:text-white transition-colors">{username}</span>
-              <span className="text-[10px] text-slate-500 font-medium tracking-wide">My Account</span>
+              <span className="text-[10px] text-[#4a6080] font-medium tracking-wide">My Account</span>
             </div>
           </button>
           <button
@@ -113,7 +113,7 @@ export const DashboardSidebar = ({
                 setAnalysis(thread);
                 setShowJobs(false);
               }}
-              className="p-4 rounded-xl cursor-pointer transition-all duration-200 group bg-slate-800/30 hover:bg-slate-800/80 border border-transparent hover:border-slate-700/80 hover:shadow-lg hover:shadow-black/20"
+              className="p-4 rounded-xl cursor-pointer transition-all duration-200 group bg-[#111c32]/60 hover:bg-[#142040] border border-[#1a2d4a]/60 hover:border-[#2563eb]/30 hover:shadow-lg hover:shadow-blue-900/20"
             >
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-2 pr-2 leading-snug">
@@ -155,9 +155,9 @@ export const DashboardSidebar = ({
         </div>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-slate-800/80 p-4 bg-slate-900/50">
+        <div className="border-t border-[#1a2d4a] p-4 bg-[#0b1221]/60">
           <button
-            className="w-full flex items-center justify-center space-x-2 text-slate-400 hover:text-white hover:bg-slate-800 py-3 rounded-lg transition-all font-semibold"
+            className="w-full flex items-center justify-center space-x-2 text-[#4a6080] hover:text-white hover:bg-[#1a2d4a] py-3 rounded-lg transition-all font-semibold"
             onClick={logout}
           >
             <LogOut size={16} />

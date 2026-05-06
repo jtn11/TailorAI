@@ -104,7 +104,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
         <div className="flex items-center space-x-5">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-slate-400 hover:text-white transition font-medium text-sm bg-slate-800/80 hover:bg-slate-700 py-2 px-4 rounded-lg border border-slate-700/50"
+            className="flex items-center space-x-2 text-[#4a6080] hover:text-white transition font-medium text-sm bg-[#111c32] hover:bg-[#142040] py-2 px-4 rounded-lg border border-[#1a2d4a]"
           >
             <ArrowLeft size={16} />
             <span>Back to Analysis</span>
@@ -118,7 +118,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
         
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="flex flex-col gap-3 w-full md:w-[32rem]">
-          <div className="flex flex-col sm:flex-row shadow-inner bg-[#0b1221] border border-slate-700 rounded-lg overflow-hidden focus-within:border-blue-500 transition-colors">
+          <div className="flex flex-col sm:flex-row shadow-inner bg-[#0b1221] border border-[#1a2d4a] rounded-lg overflow-hidden focus-within:border-blue-500 transition-colors">
             {/* What */}
             <div className="flex-1 relative flex items-center border-b sm:border-b-0 sm:border-r border-slate-700">
               <Search size={16} className="absolute left-3.5 text-slate-400" />
@@ -156,7 +156,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
             <select
               value={searchExperience}
               onChange={(e) => setSearchExperience(e.target.value)}
-              className="bg-[#0b1221] border border-slate-700 text-slate-300 text-sm rounded-md py-1 px-2 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-slate-500 transition-colors"
+              className="bg-[#0b1221] border border-[#1a2d4a] text-slate-300 text-sm rounded-md py-1 px-2 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-[#2563eb]/50 transition-colors"
             >
               <option value="">Any Experience</option>
               <option value="Internship">Internship</option>
@@ -180,7 +180,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
         </form>
       </div>
 
-      <div className="pb-4 border-b border-slate-800 flex justify-between items-end">
+      <div className="pb-4 border-b border-[#1a2d4a] flex justify-between items-end">
          <p className="text-sm font-medium text-slate-400">
            {loading ? "Searching active listings..." : `Found ${jobs.length} open positions for "${activeQuery}"`}
          </p>
@@ -213,7 +213,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
                 ))}
              </div>
         ) : jobs.length === 0 && !error ? (
-           <div className="text-center py-20 bg-slate-900/50 border border-slate-800 rounded-xl">
+           <div className="text-center py-20 bg-[#111c32]/50 border border-[#1a2d4a] rounded-xl">
              <Briefcase size={48} className="mx-auto text-slate-600 mb-4" />
              <h3 className="text-xl font-bold text-slate-300">No jobs found</h3>
              <p className="text-slate-500 mt-2">Try adjusting your search keywords or location.</p>
@@ -222,7 +222,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
           jobs.map((job) => (
             <div
               key={job.job_id || Math.random().toString()}
-              className="bg-[#0b1221] border border-slate-700/60 rounded-xl p-5 hover:border-blue-500/40 transition-all duration-300 group shadow-sm hover:shadow-lg hover:shadow-blue-900/10 flex flex-col md:flex-row justify-between items-center md:items-start gap-4 relative overflow-hidden"
+              className="bg-[#111c32] border border-[#1a2d4a] rounded-xl p-5 hover:border-[#2563eb]/40 transition-all duration-300 group shadow-sm hover:shadow-lg hover:shadow-blue-900/15 flex flex-col md:flex-row justify-between items-center md:items-start gap-4 relative overflow-hidden"
             >
               {/* Subtle generic background glow on hover */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition duration-700 -mr-16 -mt-16 pointer-events-none"></div>
@@ -256,7 +256,7 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
               </div>
 
               {/* Right: Apply */}
-              <div className="flex w-full md:w-auto items-center justify-end md:flex-col md:items-end gap-3 md:gap-4 pl-0 md:pl-5 md:border-l border-slate-800/80 relative z-10 h-full md:min-h-[80px]">
+              <div className="flex w-full md:w-auto items-center justify-end md:flex-col md:items-end gap-3 md:gap-4 pl-0 md:pl-5 md:border-l border-[#1a2d4a] relative z-10 h-full md:min-h-[80px]">
                 <a
                   href={job.job_apply_link || "#"}
                   target="_blank"
