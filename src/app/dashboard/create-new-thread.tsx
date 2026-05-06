@@ -63,7 +63,7 @@ export const CreateNewThread = ({
   };
 
   return (
-    <div className="bg-[#0f1930]/60 backdrop-blur-xl border border-slate-800/60 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+    <div className="bg-[#0f1930]/60 backdrop-blur-xl border border-slate-800/60 rounded-3xl p-10 shadow-2xl relative overflow-hidden group">
       {/* Subtle Container Glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10"></div>
 
