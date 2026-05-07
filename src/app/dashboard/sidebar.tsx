@@ -18,7 +18,6 @@ export const DashboardSidebar = ({
   sidebarOpen,
   setSidebarOpen,
   setAnalysis,
-  handleReset,
   historyThreads,
   setCurrentThreads,
   setShowJobs,
@@ -79,7 +78,6 @@ export const DashboardSidebar = ({
         <div className="h-[88px] border-b border-[#1a2d4a] flex items-center justify-between px-6 bg-[#0b1221]/40">
           <button
             className="flex items-center space-x-3 text-slate-200 transition group w-full"
-            onClick={logout}
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 text-sm font-bold text-white shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all transform group-hover:-translate-y-0.5 border border-blue-400/50">
               {username?.trim()?.[0]?.toUpperCase() ?? "?"}
