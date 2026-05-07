@@ -1,14 +1,12 @@
 "use client";
-import { useAuth } from "@/context/authcontext";
-import { Bell, HelpCircle, LogOut, Menu, Search } from "lucide-react";
-
+import { Menu, Plus } from "lucide-react";
 interface NavbarProps {
   setSidebarOpen: (open: boolean) => void;
   sidebarOpen: boolean;
+  handleReset: () => void;
 }
 
-export const Navbar = ({ setSidebarOpen, sidebarOpen }: NavbarProps) => {
-  const { logout } = useAuth();
+export const Navbar = ({ setSidebarOpen, sidebarOpen, handleReset }: NavbarProps) => {
 
   return (
     <header
@@ -29,18 +27,6 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen }: NavbarProps) => {
         </span>
       </div>
 
-      {/* Center: Search bar */}
-      <div className="flex-1 max-w-xs hidden sm:flex">
-        <div className="flex items-center gap-2 bg-[#0f1829] border border-[#1a2d4a] rounded-md px-3 py-1.5 w-full">
-          <Search size={14} className="text-[#4a6080] flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Search analytics..."
-            className="bg-transparent text-[#94a3b8] placeholder-[#4a6080] text-sm outline-none w-full"
-          />
-        </div>
-      </div>
-
       {/* Nav links (center-right) */}
       <nav className="hidden md:flex items-center gap-6 ml-auto mr-4">
         <a
@@ -55,39 +41,24 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen }: NavbarProps) => {
         >
           Job Matches
         </a>
-        <a
-          href="#"
-          className="text-sm text-[#8d90a0] hover:text-[#e1e2ed] transition-colors"
-        >
-          Applications
-        </a>
+        
       </nav>
 
       {/* Right: icons + logout */}
       <div className="flex items-center gap-3 flex-shrink-0 ml-auto md:ml-0">
         <button
-          className="text-[#8d90a0] hover:text-[#e1e2ed] transition-colors"
-          aria-label="Notifications"
+          onClick={handleReset}
+          className="flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg border border-blue-500/20 transition-all text-sm font-semibold"
+          title="New Analysis"
         >
-          <Bell size={18} />
+          <Plus size={16} />
+          <span className="hidden sm:inline">New Analysis</span>
         </button>
-        <button
-          className="text-[#8d90a0] hover:text-[#e1e2ed] transition-colors"
-          aria-label="Help"
-        >
-          <HelpCircle size={18} />
-        </button>
+        
         {/* Avatar placeholder */}
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2563eb] to-[#4edea3] flex items-center justify-center text-xs font-bold text-white select-none">
           U
         </div>
-        <button
-          onClick={logout}
-          className="hidden md:flex items-center gap-1.5 text-sm text-[#8d90a0] hover:text-[#e1e2ed] transition-colors"
-        >
-          <LogOut size={15} />
-          <span>Logout</span>
-        </button>
       </div>
     </header>
   );

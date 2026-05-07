@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Clock, LogOut, Plus, Trash2, X } from "lucide-react";
+import { Clock, LogOut, Search, Trash2, X } from "lucide-react";
 import { useAuth } from "@/context/authcontext";
 import { AnalysisResult } from "@/types/analysis";
 
@@ -42,7 +42,6 @@ export const DashboardSidebar = ({
       },
     });
 
-    console.log(deletedThread);
   };
 
   const formatDate = (dateString?: string) => {
@@ -61,6 +60,15 @@ export const DashboardSidebar = ({
       return dateString;
     }
   };
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredThreads = historyThreads?.filter((thread) => {
+    const title = typeof thread.jobDescription === "object" && thread.jobDescription !== null
+      ? (thread.jobDescription as any).title || (thread.jobDescription as any).description || ""
+      : thread.jobDescription || "";
+    return title.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <aside
@@ -89,15 +97,18 @@ export const DashboardSidebar = ({
           </button>
         </div>
 
-        {/* New Analysis Button */}
+        {/* Search Box */}
         <div className="px-5 py-6">
-          <button
-            onClick={handleReset}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/30 flex items-center justify-center space-x-2 transform hover:-translate-y-0.5 border border-blue-500/50"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            <span>New Analysis</span>
-          </button>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+            <input
+              type="text"
+              placeholder="Search analyses..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#111c32] border border-[#1a2d4a] focus:border-blue-500/50 text-slate-200 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none transition-all placeholder:text-slate-600 shadow-inner"
+            />
+          </div>
         </div>
 
         {/* History Threads */}
@@ -105,7 +116,7 @@ export const DashboardSidebar = ({
           <p className="text-[10px] font-black text-slate-500 px-2 tracking-widest uppercase mb-1">
             Recent Analyses
           </p>
-          {historyThreads?.map((thread) => (
+          {filteredThreads?.map((thread) => (
             <div
               key={thread.id}
               onClick={() => {
@@ -152,6 +163,11 @@ export const DashboardSidebar = ({
               </div>
             </div>
           ))}
+          {filteredThreads?.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-slate-500 text-xs font-medium italic">No matches found</p>
+            </div>
+          )}
         </div>
 
         {/* Sidebar Footer */}
