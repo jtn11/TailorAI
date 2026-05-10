@@ -85,19 +85,24 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (matchPct / 100) * circumference;
 
-  // Skills gap data derived from analysis (fallback to demo if not provided)
-  const skillsGapData = [
+  // Skills gap data derived from analysis
+  const skillsGapData = analysis?.skillsAnalysis?.map(s => ({
+    label: s.label,
+    resume: Math.round(s.score * 100),
+    benchmark: 100,
+    gap: Math.round((s.score - 1) * 100)
+  })) || [
     { label: "Backend", resume: 85, benchmark: 100, gap: -15 },
     { label: "Frontend", resume: 93, benchmark: 100, gap: -7 },
     { label: "DevOps", resume: 55, benchmark: 100, gap: -45 },
     { label: "Cloud Architect", resume: 85, benchmark: 100, gap: -15 },
   ];
 
-  // Sub-scores derived (use analysis fields if available)
+  // Sub-scores derived from analysis
   const subScores = [
-    { label: "Experience", value: 92 },
-    { label: "Skills", value: 78 },
-    { label: "Education", value: 95 },
+    { label: "Experience", value: Math.round((analysis?.experienceScore || 0) * 100) || 0 },
+    { label: "Skills", value: Math.round((analysis?.skillsScore || 0) * 100) || 0 },
+    { label: "Education", value: Math.round((analysis?.educationScore || 0) * 100) || 0 },
   ];
 
   // Missing keywords impact categorisation
