@@ -8,7 +8,7 @@ export interface AnalysisResult {
     label: string;
     score: number;
   }[];
-  missingKeywords: string[];
+  missingKeywords: { keyword: string; impact: "HIGH" | "MEDIUM" | "LOW" }[];
   missingSkills: string[];
   suggestions: string[];
   coverLetter?: string;

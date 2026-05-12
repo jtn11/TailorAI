@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 interface Props {
   analysis: AnalysisResult;
   onReset: () => void;
-  onSearchJobs: () => void;
+  onSearchJobs: () => void; 
 }
 
 const MIDNIGHT = {
@@ -107,10 +107,15 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
 
   // Missing keywords impact categorisation
   const missingKeywords = (analysis?.missingKeywords || []).map(
-    (kw: any, i: number) => {
-      const text = extractText(kw);
-      const impact = i < 3 ? "HIGH" : i < 6 ? "MEDIUM" : "LOW";
-      return { text, impact };
+    (kw: any) => {
+      // Support both structured objects and legacy strings
+      if (typeof kw === "string") {
+        return { text: kw, impact: "MEDIUM" as const };
+      }
+      return { 
+        text: kw.keyword || extractText(kw), 
+        impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW" 
+      };
     }
   );
 

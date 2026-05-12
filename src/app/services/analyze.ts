@@ -26,7 +26,12 @@ export async function analyzeResume(text: string, jobDescription: string) {
 
         5. skillsAnalysis: An array of 4-5 relevant skill categories (e.g., "Backend", "Frontend", "Management") with a score between 0-1.
 
-        missingKeywords, missingSkills, and suggestions MUST always be arrays. If there are no values, return an empty array [].
+        missingKeywords must be an array of objects: { "keyword": string, "impact": "HIGH" | "MEDIUM" | "LOW" }.
+        - HIGH impact: Core technologies, essential hard skills, or mandatory certifications explicitly mentioned in the Job Description but missing from the resume.
+        - MEDIUM impact: Preferred skills, secondary tools, or methodologies that add value but aren't strictly mandatory.
+        - LOW impact: Soft skills or nice-to-have attributes mentioned in passing.
+
+        missingSkills and suggestions MUST always be arrays. If there are no values, return an empty array [].
         Use EXACT schema:
 
         {
@@ -38,7 +43,9 @@ export async function analyzeResume(text: string, jobDescription: string) {
             { "label": string, "score": number }
           ],
           "missingSkills": string[],
-          "missingKeywords": string[],
+          "missingKeywords": [
+            { "keyword": string, "impact": "HIGH" | "MEDIUM" | "LOW" }
+          ],
           "suggestions": string[],
           "coverLetter": string,
           "jobDescription": string,
