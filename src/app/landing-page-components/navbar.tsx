@@ -16,9 +16,9 @@ export const LandingPageNavbar = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-2 rounded-lg">
-              <Zap className="w-6 h-6 text-white" />
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => router.push("/")}>
+            <div className="bg-[#111c32] p-1 rounded-lg border border-[#1a2d4a]">
+              <img src="/logo.png" alt="TailorAI Logo" className="w-8 h-8 object-contain rounded-md" />
             </div>
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
               TailorAI
