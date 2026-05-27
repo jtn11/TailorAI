@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/context/authcontext";
 import { Menu, Plus } from "lucide-react";
 interface NavbarProps {
   setSidebarOpen: (open: boolean) => void;
@@ -7,6 +8,8 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ setSidebarOpen, sidebarOpen, handleReset }: NavbarProps) => {
+
+  const {username} = useAuth(); 
 
   return (
     <header
@@ -57,7 +60,7 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen, handleReset }: NavbarProps
         
         {/* Avatar placeholder */}
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2563eb] to-[#4edea3] flex items-center justify-center text-xs font-bold text-white select-none">
-          U
+          {username?.trim()?.[0]?.toUpperCase() ?? "?"}
         </div>
       </div>
     </header>
