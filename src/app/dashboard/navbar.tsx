@@ -5,9 +5,19 @@ interface NavbarProps {
   setSidebarOpen: (open: boolean) => void;
   sidebarOpen: boolean;
   handleReset: () => void;
+  showJobs: boolean;
+  setShowJobs: (show: boolean) => void;
+  hasAnalysis: boolean;
 }
 
-export const Navbar = ({ setSidebarOpen, sidebarOpen, handleReset }: NavbarProps) => {
+export const Navbar = ({
+  setSidebarOpen,
+  sidebarOpen,
+  handleReset,
+  showJobs,
+  setShowJobs,
+  hasAnalysis,
+}: NavbarProps) => {
 
   const {username} = useAuth(); 
 
@@ -32,19 +42,41 @@ export const Navbar = ({ setSidebarOpen, sidebarOpen, handleReset }: NavbarProps
 
       {/* Nav links (center-right) */}
       <nav className="hidden md:flex items-center gap-6 ml-auto mr-4">
-        <a
-          href="#"
-          className="text-sm text-[#b4c5ff] font-medium border-b border-[#b4c5ff] pb-0.5 transition-colors hover:text-white"
+        <button
+          onClick={() => {
+            if (hasAnalysis) {
+              setShowJobs(false);
+            }
+          }}
+          disabled={!hasAnalysis}
+          className={`text-sm font-medium pb-0.5 transition-all duration-200 ${
+            !hasAnalysis
+              ? "text-[#b4c5ff] border-b border-[#b4c5ff] cursor-default"
+              : !showJobs
+              ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
+              : "text-[#8d90a0] hover:text-[#e1e2ed]"
+          }`}
         >
           Resume Analysis
-        </a>
-        <a
-          href="#"
-          className="text-sm text-[#8d90a0] hover:text-[#e1e2ed] transition-colors"
+        </button>
+        <button
+          onClick={() => {
+            if (hasAnalysis) {
+              setShowJobs(true);
+            }
+          }}
+          disabled={!hasAnalysis}
+          className={`text-sm font-medium pb-0.5 transition-all duration-200 ${
+            !hasAnalysis
+              ? "text-[#4e5b72] cursor-not-allowed opacity-50"
+              : showJobs
+              ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
+              : "text-[#8d90a0] hover:text-[#e1e2ed]"
+          }`}
+          title={!hasAnalysis ? "Analyze a resume first to view job matches" : "View job matches"}
         >
           Job Matches
-        </a>
-        
+        </button>
       </nav>
 
       {/* Right: icons + logout */}

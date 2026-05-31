@@ -67,7 +67,14 @@ const AnalysisDashboard: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 transition-all duration-500 ease-in-out relative z-10 flex flex-col h-screen min-w-0">
         <div className="z-50 bg-[#0b1221]/95 backdrop-blur-md border-b border-[#1a2d4a] flex-none">
-          <Navbar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} handleReset={handleReset} />
+          <Navbar
+            setSidebarOpen={setSidebarOpen}
+            sidebarOpen={sidebarOpen}
+            handleReset={handleReset}
+            showJobs={showJobs}
+            setShowJobs={setShowJobs}
+            hasAnalysis={!!analysis}
+          />
         </div>
 
         <div className="flex-1 overflow-y-auto w-full flex flex-col">
