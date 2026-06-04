@@ -1,6 +1,6 @@
 "use client";
 import { AnalysisResult } from "@/types/analysis";
-import jsPDF from "jspdf";
+import { exportCoverLetterPdf } from "./exportpdf";
 import {
   AlertTriangle,
   ArrowUpRight,
@@ -70,12 +70,9 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleDownload = (text: string) => {
+  const handleDownload = async (text: string) => {
     if (!text) return;
-    const doc = new jsPDF();
-    const splitText = doc.splitTextToSize(text, 180);
-    doc.text(splitText, 15, 20);
-    doc.save("cover-letter.pdf");
+    await exportCoverLetterPdf(text);
   };
 
   const matchPct = analysis ? Math.round(analysis.matchScore * 100) : 0;
