@@ -12,6 +12,10 @@ export const FetchChatThread = async (userid: string) => {
       missingSkills: items.data.missingSkills,
       missingKeywords: items.data.missingKeywords,
       suggestions: items.data.suggestions,
+      experienceScore: items.data.experienceScore,
+      skillsScore: items.data.skillsScore,
+      educationScore: items.data.educationScore,
+      skillsAnalysis: items.data.skillsAnalysis,
     }));
     return formatData;
   } catch (error) {
