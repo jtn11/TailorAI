@@ -586,10 +586,20 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
               borderColor: MIDNIGHT.border,
             }}
           >
-            <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-              <FileText size={16} className="text-[#b4c5ff]" />
-              Generated Cover Letter
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                <FileText size={16} className="text-[#b4c5ff]" />
+                Generated Cover Letter
+              </h2>
+              <button
+                onClick={() => handleDownload(editedCoverLetter || "")}
+                disabled={!editedCoverLetter}
+                className="flex items-center gap-1.5 text-xs text-[#b4c5ff] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Download size={13} />
+                Export PDF
+              </button>
+            </div>
             <div
               className="rounded-lg border mb-4 focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb30] transition-all"
               style={{
