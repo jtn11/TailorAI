@@ -2,7 +2,6 @@
 import { AnalysisResult, KeywordAnalysis } from "@/types/analysis";
 import { exportCoverLetterPdf } from "./exportpdf";
 import {
-  AlertTriangle,
   ArrowUpRight,
   Briefcase,
   CheckCircle2,
@@ -184,6 +183,17 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
         "Integrate this keyword into your resume's skills or projects.",
     };
   });
+
+  // Sort missingKeywords in descending order of status priority: Strong (4) -> Demonstrated (3) -> Mentioned (2) -> Missing (1)
+  const statusPriority: Record<KeywordAnalysis["status"], number> = {
+    Strong: 4,
+    Demonstrated: 3,
+    Mentioned: 2,
+    Missing: 1,
+  };
+  missingKeywords.sort(
+    (a, b) => (statusPriority[b.status] || 0) - (statusPriority[a.status] || 0),
+  );
 
   // Recommendations
   const recommendations = (analysis?.suggestions || []).map((s: any) =>
@@ -421,8 +431,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             }}
           >
             <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-4">
-              <AlertTriangle size={16} className="text-[#ffb95f]" />
-              Missing Keywords
+              Required Skills Analysis
             </h2>
 
             {missingKeywords.length > 0 ? (
