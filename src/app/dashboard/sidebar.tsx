@@ -40,7 +40,6 @@ export const DashboardSidebar = ({
         Authorization: `Bearer ${token}`,
       },
     });
-
   };
 
   const formatDate = (dateString?: string) => {
@@ -63,9 +62,13 @@ export const DashboardSidebar = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredThreads = historyThreads?.filter((thread) => {
-    const title = typeof thread.jobDescription === "object" && thread.jobDescription !== null
-      ? (thread.jobDescription as any).title || (thread.jobDescription as any).description || ""
-      : thread.jobDescription || "";
+    const title =
+      typeof thread.jobDescription === "object" &&
+      thread.jobDescription !== null
+        ? (thread.jobDescription as any).title ||
+          (thread.jobDescription as any).description ||
+          ""
+        : thread.jobDescription || "";
     return title.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -76,15 +79,17 @@ export const DashboardSidebar = ({
       <div className="h-full flex flex-col w-72">
         {/* Sidebar Header */}
         <div className="h-[88px] border-b border-[#1a2d4a] flex items-center justify-between px-6 bg-[#0b1221]/40">
-          <button
-            className="flex items-center space-x-3 text-slate-200 transition group w-full"
-          >
+          <button className="flex items-center space-x-3 text-slate-200 transition group w-full">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 text-sm font-bold text-white shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all transform group-hover:-translate-y-0.5 border border-blue-400/50">
               {username?.trim()?.[0]?.toUpperCase() ?? "?"}
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-semibold text-sm group-hover:text-white transition-colors">{username}</span>
-              <span className="text-[10px] text-[#4a6080] font-medium tracking-wide">My Account</span>
+              <span className="font-semibold text-sm group-hover:text-white transition-colors">
+                {username}
+              </span>
+              <span className="text-[10px] text-[#4a6080] font-medium tracking-wide">
+                My Account
+              </span>
             </div>
           </button>
           <button
@@ -98,7 +103,10 @@ export const DashboardSidebar = ({
         {/* Search Box */}
         <div className="px-5 py-6">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search analyses..."
@@ -126,8 +134,11 @@ export const DashboardSidebar = ({
             >
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-2 pr-2 leading-snug">
-                  {typeof thread.jobDescription === "object" && thread.jobDescription !== null
-                    ? (thread.jobDescription as any).title || (thread.jobDescription as any).description || "Analyzed Job"
+                  {typeof thread.jobDescription === "object" &&
+                  thread.jobDescription !== null
+                    ? (thread.jobDescription as any).title ||
+                      (thread.jobDescription as any).description ||
+                      "Analyzed Job"
                     : thread.jobDescription || "Analyzed Job"}
                 </h4>
                 <button
@@ -163,7 +174,9 @@ export const DashboardSidebar = ({
           ))}
           {filteredThreads?.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-slate-500 text-xs font-medium italic">No matches found</p>
+              <p className="text-slate-500 text-xs font-medium italic">
+                No matches found
+              </p>
             </div>
           )}
         </div>

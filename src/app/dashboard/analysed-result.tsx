@@ -1,5 +1,5 @@
 "use client";
-import { AnalysisResult } from "@/types/analysis";
+import { AnalysisResult, KeywordAnalysis } from "@/types/analysis";
 import { exportCoverLetterPdf } from "./exportpdf";
 import {
   AlertTriangle,
@@ -12,13 +12,15 @@ import {
   Search,
   TrendingUp,
   X,
+  Star,
+  Check,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface Props {
   analysis: AnalysisResult;
   onReset: () => void;
-  onSearchJobs: () => void; 
+  onSearchJobs: () => void;
 }
 
 const MIDNIGHT = {
@@ -43,9 +45,11 @@ const MIDNIGHT = {
 export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [editedCoverLetter, setEditedCoverLetter] = useState<string>(
-    analysis?.coverLetter || ""
+    analysis?.coverLetter || "",
   );
   const [activeTab, setActiveTab] = useState<"overview" | "cover">("overview");
+  const [selectedKeyword, setSelectedKeyword] =
+    useState<KeywordAnalysis | null>(null);
 
   useEffect(() => {
     if (analysis?.coverLetter) {
@@ -53,10 +57,21 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     }
   }, [analysis?.coverLetter]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedKeyword(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const extractText = (item: any): string => {
     if (typeof item === "string") return item;
     if (typeof item === "object" && item !== null) {
-      if (item.title && item.description) return `${item.title}: ${item.description}`;
+      if (item.title && item.description)
+        return `${item.title}: ${item.description}`;
       if (item.title) return item.title;
       if (item.description) return item.description;
       return JSON.stringify(item);
@@ -83,11 +98,11 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const offset = circumference - (matchPct / 100) * circumference;
 
   // Skills gap data derived from analysis
-  const skillsGapData = analysis?.skillsAnalysis?.map(s => ({
+  const skillsGapData = analysis?.skillsAnalysis?.map((s) => ({
     label: s.label,
     resume: Math.round(s.score * 100),
     benchmark: 100,
-    gap: Math.round((s.score - 1) * 100)
+    gap: Math.round((s.score - 1) * 100),
   })) || [
     { label: "Backend", resume: 85, benchmark: 100, gap: -15 },
     { label: "Frontend", resume: 93, benchmark: 100, gap: -7 },
@@ -97,28 +112,51 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
 
   // Sub-scores derived from analysis
   const subScores = [
-    { label: "Experience", value: Math.round((analysis?.experienceScore || 0) * 100) || 0 },
-    { label: "Skills", value: Math.round((analysis?.skillsScore || 0) * 100) || 0 },
-    { label: "Education", value: Math.round((analysis?.educationScore || 0) * 100) || 0 },
+    {
+      label: "Experience",
+      value: Math.round((analysis?.experienceScore || 0) * 100) || 0,
+    },
+    {
+      label: "Skills",
+      value: Math.round((analysis?.skillsScore || 0) * 100) || 0,
+    },
+    {
+      label: "Education",
+      value: Math.round((analysis?.educationScore || 0) * 100) || 0,
+    },
   ];
 
-  // Missing keywords impact categorisation
-  const missingKeywords = (analysis?.missingKeywords || []).map(
-    (kw: any) => {
-      // Support both structured objects and legacy strings
-      if (typeof kw === "string") {
-        return { text: kw, impact: "MEDIUM" as const };
-      }
-      return { 
-        text: kw.keyword || extractText(kw), 
-        impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW" 
+  // Missing keywords impact categorisation (supporting legacy data format)
+  const missingKeywords: KeywordAnalysis[] = (
+    analysis?.missingKeywords || []
+  ).map((kw: any) => {
+    if (typeof kw === "string") {
+      return {
+        keyword: kw,
+        impact: "MEDIUM" as const,
+        status: "Not mentioned" as const,
+        evidence: [],
+        projectUsage: null,
+        confidence: 50,
+        recommendation: "Learn and mention in your resume.",
       };
     }
-  );
+    return {
+      keyword: kw.keyword || kw.text || extractText(kw),
+      impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW",
+      status: kw.status || "Not mentioned",
+      evidence: Array.isArray(kw.evidence) ? kw.evidence : [],
+      projectUsage: Array.isArray(kw.projectUsage) ? kw.projectUsage : null,
+      confidence: typeof kw.confidence === "number" ? kw.confidence : 75,
+      recommendation:
+        kw.recommendation ||
+        "Integrate this keyword into your resume's skills or projects.",
+    };
+  });
 
   // Recommendations
   const recommendations = (analysis?.suggestions || []).map((s: any) =>
-    extractText(s)
+    extractText(s),
   );
 
   return (
@@ -254,8 +292,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                       className="h-full rounded-full transition-all duration-1000"
                       style={{
                         width: `${s.value}%`,
-                        background:
-                          "linear-gradient(90deg, #2563eb, #b4c5ff)",
+                        background: "linear-gradient(90deg, #2563eb, #b4c5ff)",
                       }}
                     />
                   </div>
@@ -291,9 +328,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                     <span className="text-xs text-[#c3c6d7]">{s.label}</span>
                     <span
                       className={`text-xs font-semibold ${
-                        s.gap < -30
-                          ? "text-[#ffb95f]"
-                          : "text-[#8d90a0]"
+                        s.gap < -30 ? "text-[#ffb95f]" : "text-[#8d90a0]"
                       }`}
                       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     >
@@ -360,27 +395,47 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             </h2>
 
             {missingKeywords.length > 0 ? (
-              <div className="space-y-2">
-                {missingKeywords.map(({ text, impact }, idx) => (
-                  <div
+              <div className="space-y-1">
+                {missingKeywords.map((kw, idx) => (
+                  <button
                     key={idx}
-                    className="flex items-center justify-between py-2 border-b last:border-b-0"
+                    onClick={() => setSelectedKeyword(kw)}
+                    className="w-full flex items-center justify-between py-2.5 px-2 border-b last:border-b-0 hover:bg-[#16223b] rounded-lg transition-all text-left group cursor-pointer"
                     style={{ borderColor: MIDNIGHT.borderLight }}
                   >
-                    <span className="text-sm text-[#c3c6d7]">{text}</span>
-                    <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                        impact === "HIGH"
-                          ? "bg-[#7f1d1d] text-[#f87171]"
-                          : impact === "MEDIUM"
-                          ? "bg-[#78350f]/70 text-[#f59e0b]"
-                          : "bg-[#0f1829] text-[#4a6080]"
-                      }`}
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                    >
-                      {impact} Impact
+                    <span className="text-sm text-[#c3c6d7] group-hover:text-white transition-colors">
+                      {kw.keyword}
                     </span>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          kw.status === "Strongly Demonstrated"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : kw.status === "Mentioned only"
+                              ? "bg-amber-500/10 text-amber-400"
+                              : "bg-rose-500/10 text-rose-400"
+                        }`}
+                      >
+                        {kw.status === "Strongly Demonstrated"
+                          ? "Strong"
+                          : kw.status === "Mentioned only"
+                            ? "Mentioned"
+                            : "Missing"}
+                      </span>
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                          kw.impact === "HIGH"
+                            ? "bg-[#7f1d1d] text-[#f87171]"
+                            : kw.impact === "MEDIUM"
+                              ? "bg-[#78350f]/70 text-[#f59e0b]"
+                              : "bg-[#0f1829] text-[#4a6080]"
+                        }`}
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      >
+                        {kw.impact} Impact
+                      </span>
+                    </div>
+                  </button>
                 ))}
               </div>
             ) : (
@@ -417,11 +472,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                   const icons = [TrendingUp, CheckCircle2, FileText];
                   const Icon = icons[idx % icons.length];
                   const iconColors = ["#4edea3", "#b4c5ff", "#ffb95f"];
-                  const iconBgs = [
-                    "#00a572/20",
-                    "#2563eb/20",
-                    "#996100/30",
-                  ];
+                  const iconBgs = ["#00a572/20", "#2563eb/20", "#996100/30"];
                   return (
                     <div
                       key={idx}
@@ -434,8 +485,8 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                             idx % 3 === 0
                               ? "rgba(0,165,114,0.18)"
                               : idx % 3 === 1
-                              ? "rgba(37,99,235,0.18)"
-                              : "rgba(153,97,0,0.25)",
+                                ? "rgba(37,99,235,0.18)"
+                                : "rgba(153,97,0,0.25)",
                         }}
                       >
                         <Icon
@@ -528,13 +579,17 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             <div
               className="pointer-events-none absolute -right-16 -top-16 w-48 h-48 rounded-full"
               style={{
-                background: "radial-gradient(circle, #2563eb18 0%, transparent 70%)",
+                background:
+                  "radial-gradient(circle, #2563eb18 0%, transparent 70%)",
               }}
             />
             <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "#2563eb20", border: "1px solid #2563eb40" }}
+                style={{
+                  background: "#2563eb20",
+                  border: "1px solid #2563eb40",
+                }}
               >
                 <Briefcase size={22} className="text-[#b4c5ff]" />
               </div>
@@ -653,6 +708,162 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
               <X size={15} />
               Analyze Another Resume
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Keyword Detail Modal ────────────────────────────── */}
+      {selectedKeyword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
+          {/* Backdrop Click Listener */}
+          <div
+            className="absolute inset-0"
+            onClick={() => setSelectedKeyword(null)}
+          />
+
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+            style={{
+              background: "rgba(17, 28, 50, 0.95)",
+              borderColor: "rgba(74, 96, 128, 0.4)",
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Header */}
+            <div className="flex items-start justify-between mb-5 relative z-10">
+              <div>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  {selectedKeyword.keyword}
+                </h3>
+                <div className="flex gap-2 mt-1">
+                  <span
+                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                      selectedKeyword.impact === "HIGH"
+                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                        : selectedKeyword.impact === "MEDIUM"
+                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                          : "bg-slate-800/80 text-slate-400 border border-slate-700/50"
+                    }`}
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    {selectedKeyword.impact} Impact
+                  </span>
+                  <span className="text-[9px] font-medium text-[#b4c5ff] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                    {selectedKeyword.confidence}% Confidence
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedKeyword(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="space-y-4 relative z-10">
+              {/* Status Section */}
+              <div className="bg-[#0b1221]/50 p-3 rounded-lg border border-[#1a2d4a]">
+                <span className="text-xs text-[#8d90a0] block mb-1">
+                  Status
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex text-[#ffb95f]">
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const rating =
+                        selectedKeyword.status === "Strongly Demonstrated"
+                          ? 5
+                          : selectedKeyword.status === "Mentioned only"
+                            ? 2
+                            : 0;
+                      return (
+                        <Star
+                          key={i}
+                          size={14}
+                          fill={i < rating ? "#ffb95f" : "none"}
+                          className={
+                            i < rating ? "text-[#ffb95f]" : "text-slate-600"
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="text-sm font-semibold text-white">
+                    {selectedKeyword.status === "Strongly Demonstrated"
+                      ? "Strongly Demonstrated"
+                      : selectedKeyword.status === "Mentioned only"
+                        ? "Mentioned only"
+                        : "Not mentioned"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Evidence Section */}
+              <div>
+                <span className="text-xs text-[#8d90a0] block mb-1.5 font-semibold uppercase tracking-wider">
+                  Evidence
+                </span>
+                {selectedKeyword.evidence.length > 0 ? (
+                  <div className="space-y-1.5">
+                    {selectedKeyword.evidence.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm text-[#c3c6d7]"
+                      >
+                        <Check size={14} className="text-[#10b981]" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-slate-500 italic">
+                    <span>No direct evidence found in resume.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Project Usage Section */}
+              <div>
+                <span className="text-xs text-[#8d90a0] block mb-1.5 font-semibold uppercase tracking-wider">
+                  Project Usage
+                </span>
+                {selectedKeyword.projectUsage &&
+                selectedKeyword.projectUsage.length > 0 &&
+                !selectedKeyword.projectUsage.includes("None") ? (
+                  <div className="space-y-1.5">
+                    {selectedKeyword.projectUsage.map((proj, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm text-[#c3c6d7]"
+                      >
+                        <Check size={14} className="text-[#10b981]" />
+                        <span>{proj}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-rose-400">
+                    <X size={14} className="text-rose-400" />
+                    <span>None</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Recommendation Section */}
+              <div className="bg-blue-500/10 border border-blue-500/20 p-3.5 rounded-xl">
+                <span className="text-xs text-[#b4c5ff] font-semibold block mb-1 uppercase tracking-wider">
+                  Recommendation
+                </span>
+                <p className="text-sm text-[#c3c6d7] leading-relaxed">
+                  {selectedKeyword.recommendation}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

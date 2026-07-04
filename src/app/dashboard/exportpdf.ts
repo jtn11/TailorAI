@@ -62,14 +62,14 @@ const drawFallbackLogo = (doc: jsPDF, x: number, y: number) => {
 const drawBrandingAndDecorations = (
   doc: jsPDF,
   logoBase64: string,
-  totalPages: number
+  totalPages: number,
 ) => {
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
 
     // ── HEADER ──
     const headerY = 11;
-    
+
     // Logo (Image or Vector Fallback)
     if (logoBase64) {
       try {
@@ -97,7 +97,9 @@ const drawBrandingAndDecorations = (
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139); // Slate-500
-    doc.text("AI-GENERATED COVER LETTER", 190, headerY + 5.5, { align: "right" });
+    doc.text("AI-GENERATED COVER LETTER", 190, headerY + 5.5, {
+      align: "right",
+    });
 
     // Subtle header divider line
     doc.setDrawColor(226, 232, 240); // #e2e8f0 (Slate-200)
@@ -106,7 +108,7 @@ const drawBrandingAndDecorations = (
 
     // ── FOOTER ──
     const footerY = 276;
-    
+
     // Subtle footer divider line
     doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.25);
@@ -119,7 +121,9 @@ const drawBrandingAndDecorations = (
     doc.text("Downloaded from TailorAI  |  tailorai.com", 20, footerY + 5.5);
 
     // Right Footer: Page X of Y
-    doc.text(`Page ${i} of ${totalPages}`, 190, footerY + 5.5, { align: "right" });
+    doc.text(`Page ${i} of ${totalPages}`, 190, footerY + 5.5, {
+      align: "right",
+    });
   }
 };
 

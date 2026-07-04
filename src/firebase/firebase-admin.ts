@@ -10,7 +10,7 @@ export function getAdminApp() {
   }
 
   const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
-  
+
   if (admin.apps.length === 0) {
     app = admin.initializeApp({
       credential: admin.credential.cert({
@@ -22,7 +22,7 @@ export function getAdminApp() {
   } else {
     app = admin.apps[0];
   }
-  
+
   return app;
 }
 

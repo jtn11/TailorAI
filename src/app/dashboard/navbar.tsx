@@ -18,8 +18,7 @@ export const Navbar = ({
   setShowJobs,
   hasAnalysis,
 }: NavbarProps) => {
-
-  const {username} = useAuth(); 
+  const { username } = useAuth();
 
   return (
     <header
@@ -53,8 +52,8 @@ export const Navbar = ({
             !hasAnalysis
               ? "text-[#b4c5ff] border-b border-[#b4c5ff] cursor-default"
               : !showJobs
-              ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
-              : "text-[#8d90a0] hover:text-[#e1e2ed]"
+                ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
+                : "text-[#8d90a0] hover:text-[#e1e2ed]"
           }`}
         >
           Resume Analysis
@@ -70,10 +69,14 @@ export const Navbar = ({
             !hasAnalysis
               ? "text-[#4e5b72] cursor-not-allowed opacity-50"
               : showJobs
-              ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
-              : "text-[#8d90a0] hover:text-[#e1e2ed]"
+                ? "text-[#b4c5ff] border-b border-[#b4c5ff] hover:text-white"
+                : "text-[#8d90a0] hover:text-[#e1e2ed]"
           }`}
-          title={!hasAnalysis ? "Analyze a resume first to view job matches" : "View job matches"}
+          title={
+            !hasAnalysis
+              ? "Analyze a resume first to view job matches"
+              : "View job matches"
+          }
         >
           Job Matches
         </button>
@@ -89,7 +92,7 @@ export const Navbar = ({
           <Plus size={16} />
           <span className="hidden sm:inline">New Analysis</span>
         </button>
-        
+
         {/* Avatar placeholder */}
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2563eb] to-[#4edea3] flex items-center justify-center text-xs font-bold text-white select-none">
           {username?.trim()?.[0]?.toUpperCase() ?? "?"}

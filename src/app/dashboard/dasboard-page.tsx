@@ -87,8 +87,8 @@ const AnalysisDashboard: React.FC = () => {
                     Resume Analyzer
                   </h2>
                   <p className="text-slate-400 text-base md:text-lg font-medium max-w-xl mx-auto leading-relaxed">
-                    Upload your resume and job description to get instant, AI-driven analysis of
-                    your profile match.
+                    Upload your resume and job description to get instant,
+                    AI-driven analysis of your profile match.
                   </p>
                 </div>
                 {/* Form card */}
@@ -113,12 +113,20 @@ const AnalysisDashboard: React.FC = () => {
               <div className="max-w-7xl mx-auto px-6 py-10 w-full animate-in zoom-in-95 duration-500">
                 <JobSearchResults
                   onBack={() => setShowJobs(false)}
-                  initialQuery={analysis?.jobDescription ? `${analysis.jobDescription.substring(0, 40)}...` : ""}
+                  initialQuery={
+                    analysis?.jobDescription
+                      ? `${analysis.jobDescription.substring(0, 40)}...`
+                      : ""
+                  }
                 />
               </div>
             ) : (
               <div className="w-full px-6 py-8 animate-in zoom-in-95 duration-500">
-                <AnalysedResult analysis={analysis} onReset={handleReset} onSearchJobs={() => setShowJobs(true)} />
+                <AnalysedResult
+                  analysis={analysis}
+                  onReset={handleReset}
+                  onSearchJobs={() => setShowJobs(true)}
+                />
               </div>
             )}
           </div>

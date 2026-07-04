@@ -1,3 +1,13 @@
+export interface KeywordAnalysis {
+  keyword: string;
+  impact: "HIGH" | "MEDIUM" | "LOW";
+  status: "Strongly Demonstrated" | "Mentioned only" | "Not mentioned";
+  evidence: string[];
+  projectUsage?: string[] | null;
+  confidence: number;
+  recommendation: string;
+}
+
 export interface AnalysisResult {
   id: string;
   matchScore: number;
@@ -8,7 +18,7 @@ export interface AnalysisResult {
     label: string;
     score: number;
   }[];
-  missingKeywords: { keyword: string; impact: "HIGH" | "MEDIUM" | "LOW" }[];
+  missingKeywords: KeywordAnalysis[];
   missingSkills: string[];
   suggestions: string[];
   coverLetter?: string;
