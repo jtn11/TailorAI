@@ -14,6 +14,7 @@ import {
   X,
   Star,
   Check,
+  ChevronDown,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -48,8 +49,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     analysis?.coverLetter || "",
   );
   const [activeTab, setActiveTab] = useState<"overview" | "cover">("overview");
-  const [selectedKeyword, setSelectedKeyword] =
-    useState<KeywordAnalysis | null>(null);
+  const [expandedKeyword, setExpandedKeyword] = useState<string | null>(null);
 
   useEffect(() => {
     if (analysis?.coverLetter) {
@@ -60,7 +60,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setSelectedKeyword(null);
+        setExpandedKeyword(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -134,19 +134,50 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
       return {
         keyword: kw,
         impact: "MEDIUM" as const,
-        status: "Not mentioned" as const,
+        status: "Missing" as const,
         evidence: [],
         projectUsage: null,
+        inSkillsSection: false,
         confidence: 50,
         recommendation: "Learn and mention in your resume.",
       };
     }
+
+    const evidence = Array.isArray(kw.evidence) ? kw.evidence : [];
+    const projectUsage = Array.isArray(kw.projectUsage)
+      ? kw.projectUsage
+      : null;
+
+    // Check if listed in skills section
+    const inSkillsSection =
+      kw.inSkillsSection === true ||
+      evidence.some((ev: string) => ev.toLowerCase().includes("skills"));
+
+    // Check if used in projects (filtering out "none" or null values)
+    const hasProjects =
+      projectUsage !== null &&
+      projectUsage.filter((p: string) => p && p.toLowerCase() !== "none")
+        .length > 0;
+
+    let determinedStatus: "Strong" | "Demonstrated" | "Mentioned" | "Missing" =
+      "Missing";
+    if (hasProjects && inSkillsSection) {
+      determinedStatus = "Strong";
+    } else if (hasProjects) {
+      determinedStatus = "Demonstrated";
+    } else if (inSkillsSection) {
+      determinedStatus = "Mentioned";
+    } else {
+      determinedStatus = "Missing";
+    }
+
     return {
       keyword: kw.keyword || kw.text || extractText(kw),
       impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW",
-      status: kw.status || "Not mentioned",
-      evidence: Array.isArray(kw.evidence) ? kw.evidence : [],
-      projectUsage: Array.isArray(kw.projectUsage) ? kw.projectUsage : null,
+      status: determinedStatus,
+      evidence: evidence,
+      projectUsage: projectUsage,
+      inSkillsSection: inSkillsSection,
       confidence: typeof kw.confidence === "number" ? kw.confidence : 75,
       recommendation:
         kw.recommendation ||
@@ -395,47 +426,176 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             </h2>
 
             {missingKeywords.length > 0 ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {missingKeywords.map((kw, idx) => (
-                  <button
+                  <div
+                    className="border-b last:border-b-0 rounded-lg overflow-hidden bg-[#111c32]/20 border-[#1a2d4a]/50"
                     key={idx}
-                    onClick={() => setSelectedKeyword(kw)}
-                    className="w-full flex items-center justify-between py-2.5 px-2 border-b last:border-b-0 hover:bg-[#16223b] rounded-lg transition-all text-left group cursor-pointer"
-                    style={{ borderColor: MIDNIGHT.borderLight }}
                   >
-                    <span className="text-sm text-[#c3c6d7] group-hover:text-white transition-colors">
-                      {kw.keyword}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                          kw.status === "Strongly Demonstrated"
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : kw.status === "Mentioned only"
-                              ? "bg-amber-500/10 text-amber-400"
-                              : "bg-rose-500/10 text-rose-400"
-                        }`}
-                      >
-                        {kw.status === "Strongly Demonstrated"
-                          ? "Strong"
-                          : kw.status === "Mentioned only"
-                            ? "Mentioned"
-                            : "Missing"}
+                    <button
+                      onClick={() =>
+                        setExpandedKeyword(
+                          expandedKeyword === kw.keyword ? null : kw.keyword,
+                        )
+                      }
+                      className="w-full flex items-center justify-between py-3 px-3 hover:bg-[#16223b] transition-all text-left cursor-pointer group"
+                    >
+                      <span className="text-sm font-medium text-[#c3c6d7] group-hover:text-white transition-colors">
+                        {kw.keyword}
                       </span>
-                      <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                          kw.impact === "HIGH"
-                            ? "bg-[#7f1d1d] text-[#f87171]"
-                            : kw.impact === "MEDIUM"
-                              ? "bg-[#78350f]/70 text-[#f59e0b]"
-                              : "bg-[#0f1829] text-[#4a6080]"
-                        }`}
-                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                      >
-                        {kw.impact} Impact
-                      </span>
-                    </div>
-                  </button>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                            kw.status === "Strong"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : kw.status === "Demonstrated"
+                                ? "bg-blue-500/10 text-blue-400"
+                                : kw.status === "Mentioned"
+                                  ? "bg-amber-500/10 text-amber-400"
+                                  : "bg-rose-500/10 text-rose-400"
+                          }`}
+                        >
+                          {kw.status === "Missing" ? "Missing" : kw.status}
+                        </span>
+                        <span
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            kw.impact === "HIGH"
+                              ? "bg-[#7f1d1d] text-[#f87171]"
+                              : kw.impact === "MEDIUM"
+                                ? "bg-[#78350f]/70 text-[#f59e0b]"
+                                : "bg-[#0f1829] text-[#4a6080]"
+                          }`}
+                          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                        >
+                          {kw.impact} Impact
+                        </span>
+                        <ChevronDown
+                          size={14}
+                          className={`text-slate-400 transition-transform duration-200 ${
+                            expandedKeyword === kw.keyword ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+
+                    {/* Accordion Content */}
+                    {expandedKeyword === kw.keyword && (
+                      <div className="px-4 pb-4 pt-2.5 bg-[#0b1221]/40 border-t border-[#1a2d4a]/50 space-y-3.5 animate-in slide-in-from-top-2 duration-200">
+                        {/* Rating stars + Confidence */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#8d90a0]">Status:</span>
+                            <div className="flex text-[#ffb95f]">
+                              {Array.from({ length: 5 }).map((_, i) => {
+                                const rating =
+                                  kw.status === "Strong"
+                                    ? 5
+                                    : kw.status === "Demonstrated"
+                                      ? 4
+                                      : kw.status === "Mentioned"
+                                        ? 2
+                                        : 0;
+                                return (
+                                  <Star
+                                    key={i}
+                                    size={12}
+                                    fill={i < rating ? "#ffb95f" : "none"}
+                                    className={
+                                      i < rating
+                                        ? "text-[#ffb95f]"
+                                        : "text-slate-600"
+                                    }
+                                  />
+                                );
+                              })}
+                            </div>
+                            <span className="font-semibold text-white">
+                              {kw.status === "Strong"
+                                ? "Strongly Demonstrated"
+                                : kw.status === "Demonstrated"
+                                  ? "Demonstrated in Projects"
+                                  : kw.status === "Mentioned"
+                                    ? "Mentioned in Skills"
+                                    : "Not mentioned"}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-[#b4c5ff] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                            Confidence: {kw.confidence}%
+                          </span>
+                        </div>
+
+                        {/* Evidence */}
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1">
+                            Evidence
+                          </span>
+                          {kw.evidence.length > 0 ? (
+                            <div className="space-y-1">
+                              {kw.evidence.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-1.5 text-xs text-[#c3c6d7]"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-[#10b981] flex-shrink-0"
+                                  />
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-500 italic">
+                              No evidence in resume
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Project Usage */}
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1">
+                            Project Usage
+                          </span>
+                          {kw.projectUsage &&
+                          kw.projectUsage.length > 0 &&
+                          !kw.projectUsage.includes("None") ? (
+                            <div className="space-y-1">
+                              {kw.projectUsage.map((proj, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-1.5 text-xs text-[#c3c6d7]"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-[#10b981] flex-shrink-0"
+                                  />
+                                  <span>{proj}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-xs text-rose-400">
+                              <X
+                                size={12}
+                                className="text-rose-400 flex-shrink-0"
+                              />
+                              <span>None</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Recommendation */}
+                        <div className="bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-lg text-xs">
+                          <span className="text-[#b4c5ff] font-semibold block mb-1 uppercase tracking-wider">
+                            Recommendation
+                          </span>
+                          <p className="text-[#c3c6d7] leading-relaxed">
+                            {kw.recommendation}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
@@ -708,162 +868,6 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
               <X size={15} />
               Analyze Another Resume
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Keyword Detail Modal ────────────────────────────── */}
-      {selectedKeyword && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
-          {/* Backdrop Click Listener */}
-          <div
-            className="absolute inset-0"
-            onClick={() => setSelectedKeyword(null)}
-          />
-
-          <div
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border p-6 shadow-2xl animate-in zoom-in-95 duration-200"
-            style={{
-              background: "rgba(17, 28, 50, 0.95)",
-              borderColor: "rgba(74, 96, 128, 0.4)",
-              backdropFilter: "blur(12px)",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
-
-            {/* Header */}
-            <div className="flex items-start justify-between mb-5 relative z-10">
-              <div>
-                <h3 className="text-xl font-bold text-white tracking-tight">
-                  {selectedKeyword.keyword}
-                </h3>
-                <div className="flex gap-2 mt-1">
-                  <span
-                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      selectedKeyword.impact === "HIGH"
-                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                        : selectedKeyword.impact === "MEDIUM"
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : "bg-slate-800/80 text-slate-400 border border-slate-700/50"
-                    }`}
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {selectedKeyword.impact} Impact
-                  </span>
-                  <span className="text-[9px] font-medium text-[#b4c5ff] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
-                    {selectedKeyword.confidence}% Confidence
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedKeyword(null)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-4 relative z-10">
-              {/* Status Section */}
-              <div className="bg-[#0b1221]/50 p-3 rounded-lg border border-[#1a2d4a]">
-                <span className="text-xs text-[#8d90a0] block mb-1">
-                  Status
-                </span>
-                <div className="flex items-center gap-2">
-                  <div className="flex text-[#ffb95f]">
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const rating =
-                        selectedKeyword.status === "Strongly Demonstrated"
-                          ? 5
-                          : selectedKeyword.status === "Mentioned only"
-                            ? 2
-                            : 0;
-                      return (
-                        <Star
-                          key={i}
-                          size={14}
-                          fill={i < rating ? "#ffb95f" : "none"}
-                          className={
-                            i < rating ? "text-[#ffb95f]" : "text-slate-600"
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                  <span className="text-sm font-semibold text-white">
-                    {selectedKeyword.status === "Strongly Demonstrated"
-                      ? "Strongly Demonstrated"
-                      : selectedKeyword.status === "Mentioned only"
-                        ? "Mentioned only"
-                        : "Not mentioned"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Evidence Section */}
-              <div>
-                <span className="text-xs text-[#8d90a0] block mb-1.5 font-semibold uppercase tracking-wider">
-                  Evidence
-                </span>
-                {selectedKeyword.evidence.length > 0 ? (
-                  <div className="space-y-1.5">
-                    {selectedKeyword.evidence.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 text-sm text-[#c3c6d7]"
-                      >
-                        <Check size={14} className="text-[#10b981]" />
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-slate-500 italic">
-                    <span>No direct evidence found in resume.</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Project Usage Section */}
-              <div>
-                <span className="text-xs text-[#8d90a0] block mb-1.5 font-semibold uppercase tracking-wider">
-                  Project Usage
-                </span>
-                {selectedKeyword.projectUsage &&
-                selectedKeyword.projectUsage.length > 0 &&
-                !selectedKeyword.projectUsage.includes("None") ? (
-                  <div className="space-y-1.5">
-                    {selectedKeyword.projectUsage.map((proj, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 text-sm text-[#c3c6d7]"
-                      >
-                        <Check size={14} className="text-[#10b981]" />
-                        <span>{proj}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-rose-400">
-                    <X size={14} className="text-rose-400" />
-                    <span>None</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Recommendation Section */}
-              <div className="bg-blue-500/10 border border-blue-500/20 p-3.5 rounded-xl">
-                <span className="text-xs text-[#b4c5ff] font-semibold block mb-1 uppercase tracking-wider">
-                  Recommendation
-                </span>
-                <p className="text-sm text-[#c3c6d7] leading-relaxed">
-                  {selectedKeyword.recommendation}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       )}

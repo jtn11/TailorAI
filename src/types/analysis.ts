@@ -1,9 +1,10 @@
 export interface KeywordAnalysis {
   keyword: string;
   impact: "HIGH" | "MEDIUM" | "LOW";
-  status: "Strongly Demonstrated" | "Mentioned only" | "Not mentioned";
+  status: "Strong" | "Demonstrated" | "Mentioned" | "Missing";
   evidence: string[];
   projectUsage?: string[] | null;
+  inSkillsSection?: boolean;
   confidence: number;
   recommendation: string;
 }

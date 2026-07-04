@@ -30,18 +30,23 @@ export async function analyzeResume(text: string, jobDescription: string) {
         {
           "keyword": string,
           "impact": "HIGH" | "MEDIUM" | "LOW",
-          "status": "Strongly Demonstrated" | "Mentioned only" | "Not mentioned",
+          "status": "Strong" | "Demonstrated" | "Mentioned" | "Missing",
           "evidence": string[], // List of locations/projects/skills sections in the resume where the keyword appears or is referenced. E.g. ["TailorAI project", "Technical Skills"]. If not mentioned, return empty array [].
-          "projectUsage": string[] | null, // If the keyword/skill is a tool/language/framework, list the project names where it is used (e.g. ["TailorAI", "TaskNest"]). If not used in any project, use ["None"] or null.
+          "projectUsage": string[] | null, // If the keyword/skill is a tool/language/framework, list the project names where it is used (e.g. ["TailorAI", "TaskNest"]). If not used in any project, use ["None"] or null or [].
+          "inSkillsSection": boolean, // Set to true if the keyword is explicitly listed/found in the skills list/section of the resume, otherwise false.
           "confidence": number, // A confidence percentage score (0-100) of your evaluation.
           "recommendation": string // Actionable recommendation (e.g., "No action required.", "Containerize TailorAI and mention it in Projects.", "Describe projects using Docker in detail.")
         }
 
         Guidance for evaluation:
         - Analyze the ENTIRE resume carefully, including the professional experience (projects, responsibilities) and skills sections.
-        - If a keyword/skill is mentioned in multiple projects or sections (e.g., Firebase is in TailorAI and TaskNest projects, and also in Skills), status must be "Strongly Demonstrated". List all projects and sections in "evidence", set project names in "projectUsage", and recommendation must be "No action required.".
-        - If a skill is listed under the "Skills" section but not in any projects, status must be "Mentioned only". List where it was found in "evidence", set "projectUsage" to ["None"] (or null), and recommend how to demonstrate it in projects (e.g., "Containerize TailorAI and mention it in Projects.").
-        - If a skill is completely absent from the resume, status must be "Not mentioned". Recommend learning or adding it if they have experience, or building a basic project using it.
+        - Set "inSkillsSection" to true if the keyword is explicitly listed in the skills list/section.
+        - Set "projectUsage" to the list of projects using it. If it is only in the skills list and not in any projects, set "projectUsage" to ["None"] or null.
+        - Determine the status:
+          - "Strong": if used in at least one project AND mentioned in the skills list (projectUsage.length > 0 and inSkillsSection is true).
+          - "Demonstrated": if used in at least one project but NOT mentioned in the skills list (projectUsage.length > 0 and inSkillsSection is false).
+          - "Mentioned": if mentioned in the skills list but NOT used in any projects (projectUsage is null/empty and inSkillsSection is true).
+          - "Missing": if completely absent from the resume.
 
         missingSkills and suggestions MUST always be arrays. If there are no values, return an empty array [].
         Use EXACT schema:
@@ -59,9 +64,10 @@ export async function analyzeResume(text: string, jobDescription: string) {
             {
               "keyword": string,
               "impact": "HIGH" | "MEDIUM" | "LOW",
-              "status": "Strongly Demonstrated" | "Mentioned only" | "Not mentioned",
+              "status": "Strong" | "Demonstrated" | "Mentioned" | "Missing",
               "evidence": string[],
               "projectUsage": string[] | null,
+              "inSkillsSection": boolean,
               "confidence": number,
               "recommendation": string
             }

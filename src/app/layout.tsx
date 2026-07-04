@@ -19,7 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Tailor AI | Precision Resume Analytics",
-  description: "Advanced AI-powered resume analysis and job matching platform with Midnight Precision design.",
+  description:
+    "Advanced AI-powered resume analysis and job matching platform with Midnight Precision design.",
 };
 
 export default function RootLayout({
