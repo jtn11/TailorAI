@@ -26,10 +26,27 @@ export async function analyzeResume(text: string, jobDescription: string) {
 
         5. skillsAnalysis: An array of 4-5 relevant skill categories (e.g., "Backend", "Frontend", "Management") with a score between 0-1.
 
-        missingKeywords must be an array of objects: { "keyword": string, "impact": "HIGH" | "MEDIUM" | "LOW" }.
-        - HIGH impact: Core technologies, essential hard skills, or mandatory certifications explicitly mentioned in the Job Description but missing from the resume.
-        - MEDIUM impact: Preferred skills, secondary tools, or methodologies that add value but aren't strictly mandatory.
-        - LOW impact: Soft skills or nice-to-have attributes mentioned in passing.
+        missingKeywords must be an array of objects representing target keywords/skills from the Job Description that need evaluation or are missing/weak in the resume:
+        {
+          "keyword": string,
+          "impact": "HIGH" | "MEDIUM" | "LOW",
+          "status": "Strong" | "Demonstrated" | "Mentioned" | "Missing",
+          "evidence": string[], // List of locations/projects/skills sections in the resume where the keyword appears or is referenced. E.g. ["TailorAI project", "Technical Skills"]. If not mentioned, return empty array [].
+          "projectUsage": string[] | null, // If the keyword/skill is a tool/language/framework, list the project names where it is used (e.g. ["TailorAI", "TaskNest"]). If not used in any project, use ["None"] or null or [].
+          "inSkillsSection": boolean, // Set to true if the keyword is explicitly listed/found in the skills list/section of the resume, otherwise false.
+          "confidence": number, // A confidence percentage score (0-100) of your evaluation.
+          "recommendation": string // Actionable recommendation (e.g., "No action required.", "Containerize TailorAI and mention it in Projects.", "Describe projects using Docker in detail.")
+        }
+
+        Guidance for evaluation:
+        - Analyze the ENTIRE resume carefully, including the professional experience (projects, responsibilities) and skills sections.
+        - Set "inSkillsSection" to true if the keyword is explicitly listed in the skills list/section.
+        - Set "projectUsage" to the list of projects using it. If it is only in the skills list and not in any projects, set "projectUsage" to ["None"] or null.
+        - Determine the status:
+          - "Strong": if used in at least one project AND mentioned in the skills list (projectUsage.length > 0 and inSkillsSection is true).
+          - "Demonstrated": if used in at least one project but NOT mentioned in the skills list (projectUsage.length > 0 and inSkillsSection is false).
+          - "Mentioned": if mentioned in the skills list but NOT used in any projects (projectUsage is null/empty and inSkillsSection is true).
+          - "Missing": if completely absent from the resume.
 
         missingSkills and suggestions MUST always be arrays. If there are no values, return an empty array [].
         Use EXACT schema:
@@ -44,7 +61,16 @@ export async function analyzeResume(text: string, jobDescription: string) {
           ],
           "missingSkills": string[],
           "missingKeywords": [
-            { "keyword": string, "impact": "HIGH" | "MEDIUM" | "LOW" }
+            {
+              "keyword": string,
+              "impact": "HIGH" | "MEDIUM" | "LOW",
+              "status": "Strong" | "Demonstrated" | "Mentioned" | "Missing",
+              "evidence": string[],
+              "projectUsage": string[] | null,
+              "inSkillsSection": boolean,
+              "confidence": number,
+              "recommendation": string
+            }
           ],
           "suggestions": string[],
           "coverLetter": string,

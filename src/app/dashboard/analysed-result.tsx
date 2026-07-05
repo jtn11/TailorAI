@@ -1,8 +1,7 @@
 "use client";
-import { AnalysisResult } from "@/types/analysis";
+import { AnalysisResult, KeywordAnalysis } from "@/types/analysis";
 import { exportCoverLetterPdf } from "./exportpdf";
 import {
-  AlertTriangle,
   ArrowUpRight,
   Briefcase,
   CheckCircle2,
@@ -12,13 +11,16 @@ import {
   Search,
   TrendingUp,
   X,
+  Star,
+  Check,
+  ChevronDown,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface Props {
   analysis: AnalysisResult;
   onReset: () => void;
-  onSearchJobs: () => void; 
+  onSearchJobs: () => void;
 }
 
 const MIDNIGHT = {
@@ -43,9 +45,10 @@ const MIDNIGHT = {
 export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [editedCoverLetter, setEditedCoverLetter] = useState<string>(
-    analysis?.coverLetter || ""
+    analysis?.coverLetter || "",
   );
   const [activeTab, setActiveTab] = useState<"overview" | "cover">("overview");
+  const [expandedKeyword, setExpandedKeyword] = useState<string | null>(null);
 
   useEffect(() => {
     if (analysis?.coverLetter) {
@@ -53,10 +56,21 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     }
   }, [analysis?.coverLetter]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setExpandedKeyword(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const extractText = (item: any): string => {
     if (typeof item === "string") return item;
     if (typeof item === "object" && item !== null) {
-      if (item.title && item.description) return `${item.title}: ${item.description}`;
+      if (item.title && item.description)
+        return `${item.title}: ${item.description}`;
       if (item.title) return item.title;
       if (item.description) return item.description;
       return JSON.stringify(item);
@@ -83,11 +97,11 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const offset = circumference - (matchPct / 100) * circumference;
 
   // Skills gap data derived from analysis
-  const skillsGapData = analysis?.skillsAnalysis?.map(s => ({
+  const skillsGapData = analysis?.skillsAnalysis?.map((s) => ({
     label: s.label,
     resume: Math.round(s.score * 100),
     benchmark: 100,
-    gap: Math.round((s.score - 1) * 100)
+    gap: Math.round((s.score - 1) * 100),
   })) || [
     { label: "Backend", resume: 85, benchmark: 100, gap: -15 },
     { label: "Frontend", resume: 93, benchmark: 100, gap: -7 },
@@ -97,28 +111,93 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
 
   // Sub-scores derived from analysis
   const subScores = [
-    { label: "Experience", value: Math.round((analysis?.experienceScore || 0) * 100) || 0 },
-    { label: "Skills", value: Math.round((analysis?.skillsScore || 0) * 100) || 0 },
-    { label: "Education", value: Math.round((analysis?.educationScore || 0) * 100) || 0 },
+    {
+      label: "Experience",
+      value: Math.round((analysis?.experienceScore || 0) * 100) || 0,
+    },
+    {
+      label: "Skills",
+      value: Math.round((analysis?.skillsScore || 0) * 100) || 0,
+    },
+    {
+      label: "Education",
+      value: Math.round((analysis?.educationScore || 0) * 100) || 0,
+    },
   ];
 
-  // Missing keywords impact categorisation
-  const missingKeywords = (analysis?.missingKeywords || []).map(
-    (kw: any) => {
-      // Support both structured objects and legacy strings
-      if (typeof kw === "string") {
-        return { text: kw, impact: "MEDIUM" as const };
-      }
-      return { 
-        text: kw.keyword || extractText(kw), 
-        impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW" 
+  // Missing keywords impact categorisation (supporting legacy data format)
+  const missingKeywords: KeywordAnalysis[] = (
+    analysis?.missingKeywords || []
+  ).map((kw: any) => {
+    if (typeof kw === "string") {
+      return {
+        keyword: kw,
+        impact: "MEDIUM" as const,
+        status: "Missing" as const,
+        evidence: [],
+        projectUsage: null,
+        inSkillsSection: false,
+        confidence: 50,
+        recommendation: "Learn and mention in your resume.",
       };
     }
+
+    const evidence = Array.isArray(kw.evidence) ? kw.evidence : [];
+    const projectUsage = Array.isArray(kw.projectUsage)
+      ? kw.projectUsage
+      : null;
+
+    // Check if listed in skills section
+    const inSkillsSection =
+      kw.inSkillsSection === true ||
+      evidence.some((ev: string) => ev.toLowerCase().includes("skills"));
+
+    // Check if used in projects (filtering out "none" or null values)
+    const hasProjects =
+      projectUsage !== null &&
+      projectUsage.filter((p: string) => p && p.toLowerCase() !== "none")
+        .length > 0;
+
+    let determinedStatus: "Strong" | "Demonstrated" | "Mentioned" | "Missing" =
+      "Missing";
+    if (hasProjects && inSkillsSection) {
+      determinedStatus = "Strong";
+    } else if (hasProjects) {
+      determinedStatus = "Demonstrated";
+    } else if (inSkillsSection) {
+      determinedStatus = "Mentioned";
+    } else {
+      determinedStatus = "Missing";
+    }
+
+    return {
+      keyword: kw.keyword || kw.text || extractText(kw),
+      impact: (kw.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW",
+      status: determinedStatus,
+      evidence: evidence,
+      projectUsage: projectUsage,
+      inSkillsSection: inSkillsSection,
+      confidence: typeof kw.confidence === "number" ? kw.confidence : 75,
+      recommendation:
+        kw.recommendation ||
+        "Integrate this keyword into your resume's skills or projects.",
+    };
+  });
+
+  // Sort missingKeywords in descending order of status priority: Strong (4) -> Demonstrated (3) -> Mentioned (2) -> Missing (1)
+  const statusPriority: Record<KeywordAnalysis["status"], number> = {
+    Strong: 4,
+    Demonstrated: 3,
+    Mentioned: 2,
+    Missing: 1,
+  };
+  missingKeywords.sort(
+    (a, b) => (statusPriority[b.status] || 0) - (statusPriority[a.status] || 0),
   );
 
   // Recommendations
   const recommendations = (analysis?.suggestions || []).map((s: any) =>
-    extractText(s)
+    extractText(s),
   );
 
   return (
@@ -254,8 +333,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                       className="h-full rounded-full transition-all duration-1000"
                       style={{
                         width: `${s.value}%`,
-                        background:
-                          "linear-gradient(90deg, #2563eb, #b4c5ff)",
+                        background: "linear-gradient(90deg, #2563eb, #b4c5ff)",
                       }}
                     />
                   </div>
@@ -291,9 +369,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                     <span className="text-xs text-[#c3c6d7]">{s.label}</span>
                     <span
                       className={`text-xs font-semibold ${
-                        s.gap < -30
-                          ? "text-[#ffb95f]"
-                          : "text-[#8d90a0]"
+                        s.gap < -30 ? "text-[#ffb95f]" : "text-[#8d90a0]"
                       }`}
                       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     >
@@ -355,31 +431,179 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             }}
           >
             <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-4">
-              <AlertTriangle size={16} className="text-[#ffb95f]" />
-              Missing Keywords
+              Required Skills Analysis
             </h2>
 
             {missingKeywords.length > 0 ? (
               <div className="space-y-2">
-                {missingKeywords.map(({ text, impact }, idx) => (
+                {missingKeywords.map((kw, idx) => (
                   <div
+                    className="border-b last:border-b-0 rounded-lg overflow-hidden bg-[#111c32]/20 border-[#1a2d4a]/50"
                     key={idx}
-                    className="flex items-center justify-between py-2 border-b last:border-b-0"
-                    style={{ borderColor: MIDNIGHT.borderLight }}
                   >
-                    <span className="text-sm text-[#c3c6d7]">{text}</span>
-                    <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                        impact === "HIGH"
-                          ? "bg-[#7f1d1d] text-[#f87171]"
-                          : impact === "MEDIUM"
-                          ? "bg-[#78350f]/70 text-[#f59e0b]"
-                          : "bg-[#0f1829] text-[#4a6080]"
-                      }`}
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    <button
+                      onClick={() =>
+                        setExpandedKeyword(
+                          expandedKeyword === kw.keyword ? null : kw.keyword,
+                        )
+                      }
+                      className="w-full flex items-center justify-between py-3 px-3 hover:bg-[#16223b] transition-all text-left cursor-pointer group"
                     >
-                      {impact} Impact
-                    </span>
+                      <span className="text-sm font-medium text-[#c3c6d7] group-hover:text-white transition-colors">
+                        {kw.keyword}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                            kw.status === "Strong"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : kw.status === "Demonstrated"
+                                ? "bg-blue-500/10 text-blue-400"
+                                : kw.status === "Mentioned"
+                                  ? "bg-amber-500/10 text-amber-400"
+                                  : "bg-rose-500/10 text-rose-400"
+                          }`}
+                        >
+                          {kw.status === "Missing" ? "Missing" : kw.status}
+                        </span>
+                        <span
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            kw.impact === "HIGH"
+                              ? "bg-[#7f1d1d] text-[#f87171]"
+                              : kw.impact === "MEDIUM"
+                                ? "bg-[#78350f]/70 text-[#f59e0b]"
+                                : "bg-[#0f1829] text-[#4a6080]"
+                          }`}
+                          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                        >
+                          {kw.impact} Impact
+                        </span>
+                        <ChevronDown
+                          size={14}
+                          className={`text-slate-400 transition-transform duration-200 ${
+                            expandedKeyword === kw.keyword ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+
+                    {/* Accordion Content */}
+                    {expandedKeyword === kw.keyword && (
+                      <div className="px-4 pb-4 pt-2.5 bg-[#0b1221]/40 border-t border-[#1a2d4a]/50 space-y-3.5 animate-in slide-in-from-top-2 duration-200">
+                        {/* Rating stars + Confidence */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#8d90a0]">Status:</span>
+                            <div className="flex text-[#ffb95f]">
+                              {Array.from({ length: 5 }).map((_, i) => {
+                                const rating =
+                                  kw.status === "Strong"
+                                    ? 5
+                                    : kw.status === "Demonstrated"
+                                      ? 4
+                                      : kw.status === "Mentioned"
+                                        ? 2
+                                        : 0;
+                                return (
+                                  <Star
+                                    key={i}
+                                    size={12}
+                                    fill={i < rating ? "#ffb95f" : "none"}
+                                    className={
+                                      i < rating
+                                        ? "text-[#ffb95f]"
+                                        : "text-slate-600"
+                                    }
+                                  />
+                                );
+                              })}
+                            </div>
+                            <span className="font-semibold text-white">
+                              {kw.status === "Strong"
+                                ? "Strongly Demonstrated"
+                                : kw.status === "Demonstrated"
+                                  ? "Demonstrated in Projects"
+                                  : kw.status === "Mentioned"
+                                    ? "Mentioned in Skills"
+                                    : "Not mentioned"}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-[#b4c5ff] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                            Confidence: {kw.confidence}%
+                          </span>
+                        </div>
+
+                        {/* Evidence */}
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1">
+                            Evidence
+                          </span>
+                          {kw.evidence.length > 0 ? (
+                            <div className="space-y-1">
+                              {kw.evidence.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-1.5 text-xs text-[#c3c6d7]"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-[#10b981] flex-shrink-0"
+                                  />
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-500 italic">
+                              No evidence in resume
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Project Usage */}
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1">
+                            Project Usage
+                          </span>
+                          {kw.projectUsage &&
+                          kw.projectUsage.length > 0 &&
+                          !kw.projectUsage.includes("None") ? (
+                            <div className="space-y-1">
+                              {kw.projectUsage.map((proj, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-1.5 text-xs text-[#c3c6d7]"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-[#10b981] flex-shrink-0"
+                                  />
+                                  <span>{proj}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-xs text-rose-400">
+                              <X
+                                size={12}
+                                className="text-rose-400 flex-shrink-0"
+                              />
+                              <span>None</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Recommendation */}
+                        <div className="bg-blue-500/10 border border-blue-500/20 p-2.5 rounded-lg text-xs">
+                          <span className="text-[#b4c5ff] font-semibold block mb-1 uppercase tracking-wider">
+                            Recommendation
+                          </span>
+                          <p className="text-[#c3c6d7] leading-relaxed">
+                            {kw.recommendation}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -417,11 +641,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                   const icons = [TrendingUp, CheckCircle2, FileText];
                   const Icon = icons[idx % icons.length];
                   const iconColors = ["#4edea3", "#b4c5ff", "#ffb95f"];
-                  const iconBgs = [
-                    "#00a572/20",
-                    "#2563eb/20",
-                    "#996100/30",
-                  ];
+                  const iconBgs = ["#00a572/20", "#2563eb/20", "#996100/30"];
                   return (
                     <div
                       key={idx}
@@ -434,8 +654,8 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                             idx % 3 === 0
                               ? "rgba(0,165,114,0.18)"
                               : idx % 3 === 1
-                              ? "rgba(37,99,235,0.18)"
-                              : "rgba(153,97,0,0.25)",
+                                ? "rgba(37,99,235,0.18)"
+                                : "rgba(153,97,0,0.25)",
                         }}
                       >
                         <Icon
@@ -528,13 +748,17 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             <div
               className="pointer-events-none absolute -right-16 -top-16 w-48 h-48 rounded-full"
               style={{
-                background: "radial-gradient(circle, #2563eb18 0%, transparent 70%)",
+                background:
+                  "radial-gradient(circle, #2563eb18 0%, transparent 70%)",
               }}
             />
             <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "#2563eb20", border: "1px solid #2563eb40" }}
+                style={{
+                  background: "#2563eb20",
+                  border: "1px solid #2563eb40",
+                }}
               >
                 <Briefcase size={22} className="text-[#b4c5ff]" />
               </div>
