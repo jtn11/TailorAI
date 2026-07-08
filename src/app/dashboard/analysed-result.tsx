@@ -49,6 +49,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   );
   const [activeTab, setActiveTab] = useState<"overview" | "cover">("overview");
   const [expandedKeyword, setExpandedKeyword] = useState<string | null>(null);
+  const [showBreakdown, setShowBreakdown] = useState<boolean>(false);
 
   useEffect(() => {
     if (analysis?.coverLetter) {
@@ -200,6 +201,38 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
     extractText(s),
   );
 
+  // Match breakdown evaluation with fallback support for legacy data
+  const matchBreakdown = analysis?.matchBreakdown || {
+    strengths: missingKeywords
+      .filter((kw) => kw.status === "Strong" || kw.status === "Demonstrated")
+      .slice(0, 3)
+      .map((kw) =>
+        kw.status === "Strong"
+          ? `${kw.keyword} is strongly demonstrated`
+          : `${kw.keyword} is used in projects`,
+      )
+      .concat([
+        "Relevant educational alignment",
+        "Demonstrated technical capacity",
+      ])
+      .slice(0, 4),
+    weaknesses: missingKeywords
+      .filter((kw) => kw.status === "Missing" || kw.status === "Mentioned")
+      .slice(0, 3)
+      .map((kw) =>
+        kw.status === "Mentioned"
+          ? `${kw.keyword} is only listed in skills`
+          : `No demonstration of ${kw.keyword}`,
+      ),
+    improvements: (analysis?.suggestions || [])
+      .slice(0, 3)
+      .map((s: any, idx: number) => ({
+        scoreBoost: 2 + idx,
+        action: typeof s === "string" ? s : s.description || "Align skills",
+      })),
+    potentialScore: Math.min(1.0, (analysis?.matchScore || 0) + 0.1),
+  };
+
   return (
     <div
       className="text-[#f1f5f9]"
@@ -340,6 +373,120 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                 </div>
               ))}
             </div>
+
+            {/* ── Match Breakdown Accordion ───────────────────── */}
+            {matchBreakdown && (
+              <div className="mt-5 pt-4 border-t border-[#1a2d4a]/50">
+                <button
+                  onClick={() => setShowBreakdown(!showBreakdown)}
+                  className="w-full flex items-center justify-between text-xs text-[#b4c5ff] hover:text-white transition-colors py-2 px-2 hover:bg-[#16223b]/50 rounded-lg cursor-pointer"
+                >
+                  <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <TrendingUp size={14} />
+                    {showBreakdown
+                      ? "Hide Detailed Breakdown"
+                      : "View Match Breakdown & Potential"}
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform duration-200 ${
+                      showBreakdown ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {showBreakdown && (
+                  <div className="mt-3.5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                    {/* Strengths */}
+                    {matchBreakdown.strengths &&
+                      matchBreakdown.strengths.length > 0 && (
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                            Strengths
+                          </span>
+                          <div className="space-y-1.5">
+                            {matchBreakdown.strengths.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                              >
+                                <Check
+                                  size={12}
+                                  className="text-emerald-400 mt-0.5 flex-shrink-0"
+                                />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Weaknesses */}
+                    {matchBreakdown.weaknesses &&
+                      matchBreakdown.weaknesses.length > 0 && (
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                            Weaknesses
+                          </span>
+                          <div className="space-y-1.5">
+                            {matchBreakdown.weaknesses.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                              >
+                                <X
+                                  size={12}
+                                  className="text-rose-400 mt-0.5 flex-shrink-0"
+                                />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Improvements */}
+                    {matchBreakdown.improvements &&
+                      matchBreakdown.improvements.length > 0 && (
+                        <div>
+                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                            Estimated Improvements
+                          </span>
+                          <div className="space-y-2">
+                            {matchBreakdown.improvements.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                              >
+                                <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                  +{item.scoreBoost}%
+                                </span>
+                                <span>{item.action}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Potential Score */}
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500/20 bg-blue-500/10">
+                      <div>
+                        <span className="text-xs text-[#b4c5ff] font-semibold uppercase tracking-wider block">
+                          Potential Score
+                        </span>
+                        <span className="text-[10px] text-[#8d90a0]">
+                          If all improvements are implemented
+                        </span>
+                      </div>
+                      <span className="text-2xl font-bold text-white tracking-tight">
+                        {Math.round((matchBreakdown.potentialScore || 0) * 100)}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── Skills Gap Analysis ───────────────────────────── */}

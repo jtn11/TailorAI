@@ -48,6 +48,16 @@ export async function analyzeResume(text: string, jobDescription: string) {
           - "Mentioned": if mentioned in the skills list but NOT used in any projects (projectUsage is null/empty and inSkillsSection is true).
           - "Missing": if completely absent from the resume.
 
+        matchBreakdown must be an object containing:
+        {
+          "strengths": string[], // 3-4 key matching strengths of the candidate for this role (e.g., "React + Next.js experience").
+          "weaknesses": string[], // 3-4 core weaknesses, missing qualifications, or gaps (e.g., "No AWS experience").
+          "improvements": [
+            { "scoreBoost": number, "action": string } // scoreBoost: the percentage score improvement (e.g., 3 for +3%). action: actionable suggestion (e.g., "Show PostgreSQL in a project").
+          ],
+          "potentialScore": number // Overall potential match score if all improvements are made, between 0-1 (e.g., 0.94).
+        }
+
         missingSkills and suggestions MUST always be arrays. If there are no values, return an empty array [].
         Use EXACT schema:
 
@@ -75,7 +85,15 @@ export async function analyzeResume(text: string, jobDescription: string) {
           "suggestions": string[],
           "coverLetter": string,
           "jobDescription": string,
-          "date": string
+          "date": string,
+          "matchBreakdown": {
+            "strengths": string[],
+            "weaknesses": string[],
+            "improvements": [
+              { "scoreBoost": number, "action": string }
+            ],
+            "potentialScore": number
+          }
         } `;
 
   const response = await groq.chat.completions.create({

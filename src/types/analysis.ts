@@ -9,6 +9,13 @@ export interface KeywordAnalysis {
   recommendation: string;
 }
 
+export interface MatchBreakdown {
+  strengths: string[];
+  weaknesses: string[];
+  improvements: { scoreBoost: number; action: string }[];
+  potentialScore: number;
+}
+
 export interface AnalysisResult {
   id: string;
   matchScore: number;
@@ -26,4 +33,5 @@ export interface AnalysisResult {
   jobDescription?: string;
   date?: string;
   username?: string;
+  matchBreakdown?: MatchBreakdown;
 }
