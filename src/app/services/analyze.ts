@@ -1,8 +1,6 @@
 import Groq from "groq-sdk";
 
-export async function analyzeResume(text: string, jobDescription: string) {
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
+async function analyzeResumeStructure(groq: Groq, text: string, jobDescription: string): Promise<string> {
   const prompt = `
         Analyze this resume for a job match.
 
@@ -83,7 +81,6 @@ export async function analyzeResume(text: string, jobDescription: string) {
             }
           ],
           "suggestions": string[],
-          "coverLetter": string,
           "jobDescription": string,
           "date": string,
           "matchBreakdown": {
@@ -102,4 +99,93 @@ export async function analyzeResume(text: string, jobDescription: string) {
   });
 
   return response.choices[0].message.content?.trim() ?? "";
+}
+
+async function generateCoverLetter(groq: Groq, text: string, jobDescription: string): Promise<string> {
+  const prompt = `
+        You are an expert career coach and professional writer.
+        Your task is to write a highly personalized, professional, and compelling cover letter based on the candidate's Resume and the target Job Description.
+
+        Resume:
+        ${text}
+
+        Job Description:
+        ${jobDescription}
+
+        Guidelines:
+        1. Tone & Style:
+           - Confident, professional, engaging, and enthusiastic.
+           - Use active verbs and professional phrasing. Avoid generic templates, clichés, and buzzwords.
+           - The letter must feel genuinely written by the candidate, referencing actual details from their resume.
+
+        2. Layout & Formatting:
+           - Include standard business letter header placeholders at the top:
+             [Your Name]
+             [Your Contact Information]
+             [Date]
+
+             [Hiring Manager's Name or Search Committee]
+             [Company Name]
+             [Company Address]
+
+             Dear [Hiring Manager's Name or Hiring Team],
+           - DO NOT use any markdown formatting (no bold asterisks like **, no bullet points -, no hashes #). Write in clean, professional plain text with standard capitalization and spacing.
+           - Use double newlines ("\n\n") to separate paragraphs cleanly.
+
+        3. Structure (3-4 paragraphs, 250-400 words):
+           - Introduction: Hook the reader, state the specific target job title, and summarize the candidate's core value proposition.
+           - Body Paragraph 1 (Skills & Experience Alignment): Detail the candidate's technical/professional experience that directly maps to the job description. Cite specific projects, roles, and achievements from the resume (e.g. "During my work as a Software Engineer at Google, I..."). Use metrics or impact where available.
+           - Body Paragraph 2 (Value Add & Soft Skills): Highlight the candidate's core strengths, problem-solving abilities, and how they can solve specific challenges for the company.
+           - Conclusion: Reiterate enthusiasm for the company and role, state a clear call-to-action (expressing interest in discussing the role in an interview), and end with a professional closing:
+             Sincerely,
+
+             [Your Name]
+
+        Provide ONLY the cover letter text. Do not include any explanations, introduction, markdown blocks (like \`\`\`text), or notes. Start directly with the header placeholders.
+  `;
+
+  const response = await groq.chat.completions.create({
+    model: "llama-3.1-8b-instant",
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  return response.choices[0].message.content?.trim() ?? "";
+}
+
+export async function analyzeResume(text: string, jobDescription: string) {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+  const [structureRaw, coverLetterText] = await Promise.all([
+    analyzeResumeStructure(groq, text, jobDescription),
+    generateCoverLetter(groq, text, jobDescription),
+  ]);
+
+  try {
+    const parsed = JSON.parse(structureRaw);
+    parsed.coverLetter = coverLetterText;
+    return JSON.stringify(parsed);
+  } catch (err) {
+    console.error("Failed to parse structure raw JSON:", err, "raw was:", structureRaw);
+    // If parsing fails, create a minimal valid JSON with the cover letter
+    return JSON.stringify({
+      matchScore: 0,
+      experienceScore: 0,
+      skillsScore: 0,
+      educationScore: 0,
+      skillsAnalysis: [],
+      missingSkills: [],
+      missingKeywords: [],
+      suggestions: [],
+      jobDescription: "Failed to analyze",
+      date: new Date().toISOString(),
+      matchBreakdown: {
+        strengths: [],
+        weaknesses: [],
+        improvements: [],
+        potentialScore: 0
+      },
+      coverLetter: coverLetterText,
+      error: "Model returned invalid JSON structure"
+    });
+  }
 }
