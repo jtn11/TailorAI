@@ -97,18 +97,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (matchPct / 100) * circumference;
 
-  // Skills gap data derived from analysis
-  const skillsGapData = analysis?.skillsAnalysis?.map((s) => ({
-    label: s.label,
-    resume: Math.round(s.score * 100),
-    benchmark: 100,
-    gap: Math.round((s.score - 1) * 100),
-  })) || [
-    { label: "Backend", resume: 85, benchmark: 100, gap: -15 },
-    { label: "Frontend", resume: 93, benchmark: 100, gap: -7 },
-    { label: "DevOps", resume: 55, benchmark: 100, gap: -45 },
-    { label: "Cloud Architect", resume: 85, benchmark: 100, gap: -15 },
-  ];
+  // Technical Domain Coverage data
 
   // Sub-scores derived from analysis
   const subScores = [
@@ -232,6 +221,97 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
       })),
     potentialScore: Math.min(1.0, (analysis?.matchScore || 0) + 0.1),
   };
+
+  // Technical Domain Coverage data mapped with dynamic fallback derivations
+  const rawSkillsAnalysis = analysis?.skillsAnalysis || [
+    {
+      label: "Backend",
+      score: 0.72,
+      strengths: ["Go", "Python", "SQL"],
+      gaps: ["AWS", "Docker Compose"],
+    },
+    {
+      label: "Frontend",
+      score: 0.92,
+      strengths: ["React", "Next.js", "TypeScript"],
+      gaps: [],
+    },
+    {
+      label: "Database",
+      score: 0.58,
+      strengths: ["SQL"],
+      gaps: ["Redis", "PostgreSQL Project", "Query Optimization"],
+    },
+  ];
+
+  const skillsAnalysis = rawSkillsAnalysis.map((s) => {
+    // If strengths/gaps are already populated (new analysis), use them.
+    // Otherwise, dynamically derive them from the existing missingKeywords or strengths.
+    if ((s.strengths && s.strengths.length > 0) || (s.gaps && s.gaps.length > 0)) {
+      return s;
+    }
+
+    const label = s.label.toLowerCase();
+    const missingKeywordsList = missingKeywords || [];
+
+    const isMatch = (kwName: string, domain: string) => {
+      const kw = kwName.toLowerCase();
+      if (domain.includes("backend")) {
+        return ["go", "python", "node", "express", "backend", "api", "rest", "django", "flask", "springboot", "java", "c#", "microservices"].some(term => kw.includes(term));
+      }
+      if (domain.includes("frontend")) {
+        return ["react", "next.js", "nextjs", "typescript", "javascript", "tailwind", "css", "html", "vue", "angular", "frontend", "redux", "ui", "ux"].some(term => kw.includes(term));
+      }
+      if (domain.includes("database") || domain.includes("data")) {
+        return ["sql", "postgres", "mysql", "mongodb", "redis", "database", "query", "nosql", "cassandra", "prisma", "oracle", "mariadb"].some(term => kw.includes(term));
+      }
+      if (domain.includes("devops") || domain.includes("cloud") || domain.includes("architect")) {
+        return ["aws", "docker", "kubernetes", "cicd", "ci/cd", "cloud", "terraform", "gcp", "azure", "deployment", "pipeline", "jenkins"].some(term => kw.includes(term));
+      }
+      return false;
+    };
+
+    const derivedStrengths = missingKeywordsList
+      .filter(kw => (kw.status === "Strong" || kw.status === "Demonstrated") && isMatch(kw.keyword, label))
+      .map(kw => kw.keyword)
+      .slice(0, 3);
+
+    const derivedGaps = missingKeywordsList
+      .filter(kw => (kw.status === "Missing" || kw.status === "Mentioned") && isMatch(kw.keyword, label))
+      .map(kw => kw.keyword)
+      .slice(0, 3);
+
+    // If strengths is empty, check matchBreakdown strengths
+    if (derivedStrengths.length === 0 && matchBreakdown?.strengths) {
+      const generalStrengths = matchBreakdown.strengths.filter(str => isMatch(str, label));
+      derivedStrengths.push(...generalStrengths.slice(0, 3));
+    }
+
+    return {
+      ...s,
+      strengths: derivedStrengths,
+      gaps: derivedGaps,
+    };
+  });
+  const getRating = (score: number) => {
+    if (score >= 0.9) return { text: "Excellent", color: "#10b981" }; // Emerald-500
+    if (score >= 0.7) return { text: "Good", color: "#60a5fa" }; // Blue-400
+    if (score >= 0.5) return { text: "Needs Improvement", color: "#f59e0b" }; // Amber-500
+    return { text: "Critical Gap", color: "#f87171" }; // Red-400
+  };
+
+  const renderBlockProgressBar = (score: number, activeColor: string) => {
+    const totalBlocks = 16;
+    const activeBlocks = Math.min(totalBlocks, Math.max(0, Math.round(score * totalBlocks)));
+    const inactiveBlocks = totalBlocks - activeBlocks;
+    return (
+      <div className="flex font-mono text-lg tracking-wide select-none leading-none my-2 font-bold">
+        <span style={{ color: activeColor }}>{"█".repeat(activeBlocks)}</span>
+        <span className="text-[#1a2d4a]">{"░".repeat(inactiveBlocks)}</span>
+      </div>
+    );
+  };
+
 
   return (
     <div
@@ -489,9 +569,9 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             )}
           </div>
 
-          {/* ── Skills Gap Analysis ───────────────────────────── */}
+          {/* ── Technical Domain Coverage ───────────────────────────── */}
           <div
-            className="rounded-xl border p-6"
+            className="rounded-xl border p-6 flex flex-col"
             style={{
               background: MIDNIGHT.surface,
               borderColor: MIDNIGHT.border,
@@ -499,7 +579,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-white">
-                Skills Gap Analysis
+                Technical Domain Coverage
               </h2>
               <span
                 className="text-xs text-[#8d90a0]"
@@ -509,63 +589,73 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
               </span>
             </div>
 
-            <div className="space-y-4">
-              {skillsGapData.map((s) => (
-                <div key={s.label}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[#c3c6d7]">{s.label}</span>
-                    <span
-                      className={`text-xs font-semibold ${
-                        s.gap < -30 ? "text-[#ffb95f]" : "text-[#8d90a0]"
-                      }`}
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                    >
-                      {s.gap}%
-                    </span>
-                  </div>
-                  {/* Dual bar: benchmark (navy) behind, resume (teal) on top */}
-                  <div
-                    className="relative h-5 rounded overflow-hidden"
-                    style={{ background: "#282a32" }}
-                  >
-                    {/* Benchmark bar */}
-                    <div
-                      className="absolute inset-y-0 left-0 rounded"
-                      style={{
-                        width: `${s.benchmark}%`,
-                        background: "#2e3a5c",
-                      }}
-                    />
-                    {/* Resume bar */}
-                    <div
-                      className="absolute inset-y-0 left-0 rounded"
-                      style={{
-                        width: `${s.resume}%`,
-                        background: "#00a572",
-                        transition: "width 1s ease",
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="space-y-5">
+              {skillsAnalysis.map((s, idx) => {
+                const percentage = Math.round(s.score * 100);
+                const rating = getRating(s.score);
+                const strengthsList = s.strengths || [];
+                const gapsList = s.gaps || [];
 
-            {/* Legend */}
-            <div className="flex items-center gap-5 mt-5">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-sm"
-                  style={{ background: "#1a3a6b" }}
-                />
-                <span className="text-xs text-[#4a6080]">Target Benchmark</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-sm"
-                  style={{ background: "#10b981" }}
-                />
-                <span className="text-xs text-[#4a6080]">Your Resume</span>
-              </div>
+                return (
+                  <div key={s.label}>
+                    {idx > 0 && (
+                      <div className="my-5 border-t border-[#1a2d4a]/50" />
+                    )}
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-sm font-semibold text-[#f1f5f9]">{s.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-[#b4c5ff] font-mono">{percentage}%</span>
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                          style={{
+                            backgroundColor: `${rating.color}15`,
+                            color: rating.color,
+                            border: `1px solid ${rating.color}25`
+                          }}
+                        >
+                          {rating.text}
+                        </span>
+                      </div>
+                    </div>
+
+                    {renderBlockProgressBar(s.score, rating.color)}
+
+                    {/* Strengths */}
+                    {strengthsList.length > 0 && (
+                      <div className="mt-2.5">
+                        <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1">
+                          Strengths
+                        </span>
+                        <ul className="space-y-1">
+                          {strengthsList.map((str, i) => (
+                            <li key={i} className="text-xs text-[#c3c6d7] flex items-center gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-emerald-500 flex-shrink-0" />
+                              <span>{str}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Top Missing Gaps */}
+                    {gapsList.length > 0 && (
+                      <div className="mt-2.5">
+                        <span className="text-[10px] text-[#f87171] font-semibold uppercase tracking-wider block mb-1">
+                          Top Missing
+                        </span>
+                        <ul className="space-y-1">
+                          {gapsList.map((gap, i) => (
+                            <li key={i} className="text-xs text-[#c3c6d7] flex items-center gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-rose-500 flex-shrink-0" />
+                              <span>{gap}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

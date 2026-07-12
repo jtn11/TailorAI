@@ -25,6 +25,8 @@ export interface AnalysisResult {
   skillsAnalysis?: {
     label: string;
     score: number;
+    strengths?: string[];
+    gaps?: string[];
   }[];
   missingKeywords: KeywordAnalysis[];
   missingSkills: string[];

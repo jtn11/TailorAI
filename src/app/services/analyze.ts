@@ -22,7 +22,11 @@ async function analyzeResumeStructure(groq: Groq, text: string, jobDescription: 
         3. educationScore: Match of educational background.
         4. matchScore: The overall average of the above three scores.
 
-        5. skillsAnalysis: An array of 4-5 relevant skill categories (e.g., "Backend", "Frontend", "Management") with a score between 0-1.
+        5. skillsAnalysis: An array of 4-5 relevant skill categories (e.g., "Backend", "Frontend", "Database") with:
+           - label: name of the category (string)
+           - score: score between 0-1 (number)
+           - strengths: 2-3 key skills or technologies the candidate strongly has in this category based on their resume (string[])
+           - gaps: 2-3 key missing or weak skills or technologies in this category based on the job description requirements (string[])
 
         missingKeywords must be an array of objects representing target keywords/skills from the Job Description that need evaluation or are missing/weak in the resume:
         {
@@ -65,7 +69,7 @@ async function analyzeResumeStructure(groq: Groq, text: string, jobDescription: 
           "skillsScore": number,
           "educationScore": number,
           "skillsAnalysis": [
-            { "label": string, "score": number }
+            { "label": string, "score": number, "strengths": string[], "gaps": string[] }
           ],
           "missingSkills": string[],
           "missingKeywords": [
