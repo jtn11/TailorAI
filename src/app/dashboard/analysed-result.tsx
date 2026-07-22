@@ -342,11 +342,10 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id as any)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              activeTab === t.id
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === t.id
                 ? "bg-[#2563eb] text-white"
                 : "text-[#8d90a0] hover:text-[#e1e2ed] hover:bg-[#282a32]"
-            }`}
+              }`}
           >
             {t.label}
           </button>
@@ -357,227 +356,228 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* ── Match Score Card ──────────────────────────────── */}
           <div
-            className="rounded-xl border p-6 flex flex-col"
+            className="rounded-xl border p-6 flex flex-col h-[600px]"
             style={{
               background: MIDNIGHT.surface,
               borderColor: MIDNIGHT.border,
             }}
           >
-            {/* Circular Gauge */}
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative w-[180px] h-[180px]">
-                <svg
-                  width="180"
-                  height="180"
-                  viewBox="0 0 180 180"
-                  className="-rotate-90"
-                >
-                  {/* Track */}
-                  <circle
-                    cx="90"
-                    cy="90"
-                    r={radius}
-                    fill="none"
-                    stroke="#282a32"
-                    strokeWidth="14"
-                  />
-                  {/* Progress arc */}
-                  <circle
-                    cx="90"
-                    cy="90"
-                    r={radius}
-                    fill="none"
-                    stroke="url(#gaugeGrad)"
-                    strokeWidth="14"
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={offset}
-                    style={{ transition: "stroke-dashoffset 1.2s ease" }}
-                  />
-                  <defs>
-                    <linearGradient
-                      id="gaugeGrad"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
-                      <stop offset="0%" stopColor="#2563eb" />
-                      <stop offset="100%" stopColor="#b4c5ff" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                {/* Center text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span
-                    className="text-4xl font-bold text-white"
-                    style={{
-                      fontFamily: "'Space Grotesk', sans-serif",
-                      letterSpacing: "-0.02em",
-                    }}
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              {/* Circular Gauge */}
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative w-[180px] h-[180px]">
+                  <svg
+                    width="180"
+                    height="180"
+                    viewBox="0 0 180 180"
+                    className="-rotate-90"
                   >
-                    {matchPct}%
-                  </span>
-                  <span className="text-xs text-[#8d90a0] mt-1">
-                    Match Score
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-score bars */}
-            <div className="space-y-3">
-              {subScores.map((s) => (
-                <div key={s.label}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-[#c3c6d7]">{s.label}</span>
+                    {/* Track */}
+                    <circle
+                      cx="90"
+                      cy="90"
+                      r={radius}
+                      fill="none"
+                      stroke="#282a32"
+                      strokeWidth="14"
+                    />
+                    {/* Progress arc */}
+                    <circle
+                      cx="90"
+                      cy="90"
+                      r={radius}
+                      fill="none"
+                      stroke="url(#gaugeGrad)"
+                      strokeWidth="14"
+                      strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={offset}
+                      style={{ transition: "stroke-dashoffset 1.2s ease" }}
+                    />
+                    <defs>
+                      <linearGradient
+                        id="gaugeGrad"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="0%"
+                      >
+                        <stop offset="0%" stopColor="#2563eb" />
+                        <stop offset="100%" stopColor="#b4c5ff" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  {/* Center text */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span
-                      className="text-xs font-semibold text-[#b4c5ff]"
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      className="text-4xl font-bold text-white"
+                      style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        letterSpacing: "-0.02em",
+                      }}
                     >
-                      {s.value}%
+                      {matchPct}%
+                    </span>
+                    <span className="text-xs text-[#8d90a0] mt-1">
+                      Match Score
                     </span>
                   </div>
-                  <div
-                    className="h-1.5 rounded-full overflow-hidden"
-                    style={{ background: "#282a32" }}
-                  >
-                    <div
-                      className="h-full rounded-full transition-all duration-1000"
-                      style={{
-                        width: `${s.value}%`,
-                        background: "linear-gradient(90deg, #2563eb, #b4c5ff)",
-                      }}
-                    />
-                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            {/* ── Match Breakdown Accordion ───────────────────── */}
-            {matchBreakdown && (
-              <div className="mt-5 pt-4 border-t border-[#1a2d4a]/50">
-                <button
-                  onClick={() => setShowBreakdown(!showBreakdown)}
-                  className="w-full flex items-center justify-between text-xs text-[#b4c5ff] hover:text-white transition-colors py-2 px-2 hover:bg-[#16223b]/50 rounded-lg cursor-pointer"
-                >
-                  <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                    <TrendingUp size={14} />
-                    {showBreakdown
-                      ? "Hide Detailed Breakdown"
-                      : "View Match Breakdown & Potential"}
-                  </span>
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform duration-200 ${
-                      showBreakdown ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {showBreakdown && (
-                  <div className="mt-3.5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                    {/* Strengths */}
-                    {matchBreakdown.strengths &&
-                      matchBreakdown.strengths.length > 0 && (
-                        <div>
-                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
-                            Strengths
-                          </span>
-                          <div className="space-y-1.5">
-                            {matchBreakdown.strengths.map((item, i) => (
-                              <div
-                                key={i}
-                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
-                              >
-                                <Check
-                                  size={12}
-                                  className="text-emerald-400 mt-0.5 flex-shrink-0"
-                                />
-                                <span>{item}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Weaknesses */}
-                    {matchBreakdown.weaknesses &&
-                      matchBreakdown.weaknesses.length > 0 && (
-                        <div>
-                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
-                            Weaknesses
-                          </span>
-                          <div className="space-y-1.5">
-                            {matchBreakdown.weaknesses.map((item, i) => (
-                              <div
-                                key={i}
-                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
-                              >
-                                <X
-                                  size={12}
-                                  className="text-rose-400 mt-0.5 flex-shrink-0"
-                                />
-                                <span>{item}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Improvements */}
-                    {matchBreakdown.improvements &&
-                      matchBreakdown.improvements.length > 0 && (
-                        <div>
-                          <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
-                            Estimated Improvements
-                          </span>
-                          <div className="space-y-2">
-                            {matchBreakdown.improvements.map((item, i) => (
-                              <div
-                                key={i}
-                                className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
-                              >
-                                <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                  +{item.scoreBoost}%
-                                </span>
-                                <span>{item.action}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Potential Score */}
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500/20 bg-blue-500/10">
-                      <div>
-                        <span className="text-xs text-[#b4c5ff] font-semibold uppercase tracking-wider block">
-                          Potential Score
-                        </span>
-                        <span className="text-[10px] text-[#8d90a0]">
-                          If all improvements are implemented
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold text-white tracking-tight">
-                        {Math.round((matchBreakdown.potentialScore || 0) * 100)}
-                        %
+              {/* Sub-score bars */}
+              <div className="space-y-3">
+                {subScores.map((s) => (
+                  <div key={s.label}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-[#c3c6d7]">{s.label}</span>
+                      <span
+                        className="text-xs font-semibold text-[#b4c5ff]"
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      >
+                        {s.value}%
                       </span>
                     </div>
+                    <div
+                      className="h-1.5 rounded-full overflow-hidden"
+                      style={{ background: "#282a32" }}
+                    >
+                      <div
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${s.value}%`,
+                          background: "linear-gradient(90deg, #2563eb, #b4c5ff)",
+                        }}
+                      />
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-            )}
+
+              {/* ── Match Breakdown Accordion ───────────────────── */}
+              {matchBreakdown && (
+                <div className="mt-5 pt-4 border-t border-[#1a2d4a]/50">
+                  <button
+                    onClick={() => setShowBreakdown(!showBreakdown)}
+                    className="w-full flex items-center justify-between text-xs text-[#b4c5ff] hover:text-white transition-colors py-2 px-2 hover:bg-[#16223b]/50 rounded-lg cursor-pointer"
+                  >
+                    <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                      <TrendingUp size={14} />
+                      {showBreakdown
+                        ? "Hide Detailed Breakdown"
+                        : "View Match Breakdown & Potential"}
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-200 ${showBreakdown ? "rotate-180" : ""
+                        }`}
+                    />
+                  </button>
+
+                  {showBreakdown && (
+                    <div className="mt-3.5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                      {/* Strengths */}
+                      {matchBreakdown.strengths &&
+                        matchBreakdown.strengths.length > 0 && (
+                          <div>
+                            <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                              Strengths
+                            </span>
+                            <div className="space-y-1.5">
+                              {matchBreakdown.strengths.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-emerald-400 mt-0.5 flex-shrink-0"
+                                  />
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Weaknesses */}
+                      {matchBreakdown.weaknesses &&
+                        matchBreakdown.weaknesses.length > 0 && (
+                          <div>
+                            <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                              Weaknesses
+                            </span>
+                            <div className="space-y-1.5">
+                              {matchBreakdown.weaknesses.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                                >
+                                  <X
+                                    size={12}
+                                    className="text-rose-400 mt-0.5 flex-shrink-0"
+                                  />
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Improvements */}
+                      {matchBreakdown.improvements &&
+                        matchBreakdown.improvements.length > 0 && (
+                          <div>
+                            <span className="text-[10px] text-[#8d90a0] font-semibold uppercase tracking-wider block mb-1.5">
+                              Estimated Improvements
+                            </span>
+                            <div className="space-y-2">
+                              {matchBreakdown.improvements.map((item, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start gap-2 text-xs text-[#c3c6d7] leading-relaxed"
+                                >
+                                  <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                    +{item.scoreBoost}%
+                                  </span>
+                                  <span>{item.action}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Potential Score */}
+                      <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500/20 bg-blue-500/10">
+                        <div>
+                          <span className="text-xs text-[#b4c5ff] font-semibold uppercase tracking-wider block">
+                            Potential Score
+                          </span>
+                          <span className="text-[10px] text-[#8d90a0]">
+                            If all improvements are implemented
+                          </span>
+                        </div>
+                        <span className="text-2xl font-bold text-white tracking-tight">
+                          {Math.round((matchBreakdown.potentialScore || 0) * 100)}
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── Technical Domain Coverage ───────────────────────────── */}
           <div
-            className="rounded-xl border p-6 flex flex-col"
+            className="rounded-xl border p-6 flex flex-col h-[600px]"
             style={{
               background: MIDNIGHT.surface,
               borderColor: MIDNIGHT.border,
             }}
           >
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-5 flex-none">
               <h2 className="text-base font-semibold text-white">
                 Technical Domain Coverage
               </h2>
@@ -589,7 +589,7 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
               </span>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {skillsAnalysis.map((s, idx) => {
                 const percentage = Math.round(s.score * 100);
                 const rating = getRating(s.score);
@@ -691,35 +691,32 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                       </span>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                            kw.status === "Strong"
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${kw.status === "Strong"
                               ? "bg-emerald-500/10 text-emerald-400"
                               : kw.status === "Demonstrated"
                                 ? "bg-blue-500/10 text-blue-400"
                                 : kw.status === "Mentioned"
                                   ? "bg-amber-500/10 text-amber-400"
                                   : "bg-rose-500/10 text-rose-400"
-                          }`}
+                            }`}
                         >
                           {kw.status === "Missing" ? "Missing" : kw.status}
                         </span>
                         <span
-                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                            kw.impact === "HIGH"
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${kw.impact === "HIGH"
                               ? "bg-[#7f1d1d] text-[#f87171]"
                               : kw.impact === "MEDIUM"
                                 ? "bg-[#78350f]/70 text-[#f59e0b]"
                                 : "bg-[#0f1829] text-[#4a6080]"
-                          }`}
+                            }`}
                           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                         >
                           {kw.impact} Impact
                         </span>
                         <ChevronDown
                           size={14}
-                          className={`text-slate-400 transition-transform duration-200 ${
-                            expandedKeyword === kw.keyword ? "rotate-180" : ""
-                          }`}
+                          className={`text-slate-400 transition-transform duration-200 ${expandedKeyword === kw.keyword ? "rotate-180" : ""
+                            }`}
                         />
                       </div>
                     </button>
@@ -803,8 +800,8 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
                             Project Usage
                           </span>
                           {kw.projectUsage &&
-                          kw.projectUsage.length > 0 &&
-                          !kw.projectUsage.includes("None") ? (
+                            kw.projectUsage.length > 0 &&
+                            !kw.projectUsage.includes("None") ? (
                             <div className="space-y-1">
                               {kw.projectUsage.map((proj, i) => (
                                 <div
