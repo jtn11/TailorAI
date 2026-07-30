@@ -1,5 +1,5 @@
 "use client";
-import { AnalysisResult, KeywordAnalysis } from "@/types/analysis";
+import { AnalysisResult, KeywordAnalysis, MissingSkill } from "@/types/analysis";
 import { exportCoverLetterPdf } from "./exportpdf";
 import {
   ArrowUpRight,
@@ -14,6 +14,10 @@ import {
   Star,
   Check,
   ChevronDown,
+  AlertTriangle,
+  Lightbulb,
+  Sparkles,
+  Info,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -50,6 +54,12 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const [activeTab, setActiveTab] = useState<"overview" | "cover">("overview");
   const [expandedKeyword, setExpandedKeyword] = useState<string | null>(null);
   const [showBreakdown, setShowBreakdown] = useState<boolean>(false);
+
+  // States for Areas to Improve filtering and interaction
+  const [skillSearchQuery, setSkillSearchQuery] = useState("");
+  const [skillImpactFilter, setSkillImpactFilter] = useState<"ALL" | "HIGH" | "MEDIUM" | "LOW">("ALL");
+  const [skillCategoryFilter, setSkillCategoryFilter] = useState<string>("ALL");
+  const [selectedSkillName, setSelectedSkillName] = useState<string | null>(null);
 
   useEffect(() => {
     if (analysis?.coverLetter) {
@@ -189,6 +199,64 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
   const recommendations = (analysis?.suggestions || []).map((s: any) =>
     extractText(s),
   );
+
+  // Normalize missingSkills to support both legacy string[] and new MissingSkill[]
+  const missingSkills: MissingSkill[] = (analysis?.missingSkills || []).map((skill: any) => {
+    if (typeof skill === "string") {
+      return {
+        skill: skill,
+        category: "General",
+        gapDescription: `The skill "${skill}" is required or preferred for the role but was not explicitly found in your resume.`,
+        recommendation: `Integrate "${skill}" into your skills list or mention it within your professional experience/projects descriptions to address this gap.`,
+        impact: "MEDIUM" as const,
+      };
+    }
+    return {
+      skill: skill.skill || "",
+      category: skill.category || "General",
+      gapDescription: skill.gapDescription || "Required skill not explicitly listed in resume.",
+      recommendation: skill.recommendation || "Integrate this skill into your experience or project sections.",
+      impact: (skill.impact || "MEDIUM") as "HIGH" | "MEDIUM" | "LOW",
+    };
+  });
+
+  const skillCategories = Array.from(
+    new Set(missingSkills.map((s) => s.category))
+  ).filter(Boolean);
+
+  const filteredSkills = missingSkills.filter((s) => {
+    const matchesSearch =
+      s.skill.toLowerCase().includes(skillSearchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(skillSearchQuery.toLowerCase()) ||
+      s.gapDescription.toLowerCase().includes(skillSearchQuery.toLowerCase());
+    
+    const matchesImpact = skillImpactFilter === "ALL" || s.impact === skillImpactFilter;
+    const matchesCategory = skillCategoryFilter === "ALL" || s.category === skillCategoryFilter;
+    
+    return matchesSearch && matchesImpact && matchesCategory;
+  });
+
+  const impactPriority: Record<"HIGH" | "MEDIUM" | "LOW", number> = {
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1,
+  };
+
+  const sortedFilteredSkills = [...filteredSkills].sort(
+    (a, b) => impactPriority[b.impact] - impactPriority[a.impact]
+  );
+
+  // Set default selected skill on load/filter change
+  useEffect(() => {
+    if (sortedFilteredSkills.length > 0) {
+      const exists = sortedFilteredSkills.some(s => s.skill === selectedSkillName);
+      if (!exists) {
+        setSelectedSkillName(sortedFilteredSkills[0].skill);
+      }
+    } else {
+      setSelectedSkillName(null);
+    }
+  }, [sortedFilteredSkills, selectedSkillName]);
 
   // Match breakdown evaluation with fallback support for legacy data
   const matchBreakdown = analysis?.matchBreakdown || {
@@ -935,39 +1003,192 @@ export const AnalysedResult = ({ analysis, onReset, onSearchJobs }: Props) => {
             )}
           </div>
 
-          {/* ── Missing Skills ────────────────────────────────── */}
-          {analysis?.missingSkills && analysis.missingSkills.length > 0 && (
+          {/* ── Areas to Improve (Enhanced Master-Detail View) ───────────────────── */}
+          {missingSkills.length > 0 && (
             <div
-              className="rounded-xl border p-6 lg:col-span-2"
+              className="rounded-xl border p-6 lg:col-span-2 flex flex-col"
               style={{
                 background: MIDNIGHT.surface,
                 borderColor: MIDNIGHT.border,
               }}
             >
-              <h2 className="text-base font-semibold text-white flex items-center gap-2 mb-4">
-                <ArrowUpRight size={16} className="text-[#b4c5ff]" />
-                Areas to Improve
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {analysis.missingSkills.map((skill: any, idx: number) => {
-                  const text = extractText(skill);
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3 p-3 rounded-lg"
-                      style={{ background: MIDNIGHT.surfaceHigh }}
+              {/* Header with filters */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 border-b border-[#1a2d4a]/50 pb-5">
+                <div>
+                  <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                    <Sparkles size={16} className="text-[#b4c5ff]" />
+                    Areas to Improve
+                  </h2>
+                  <p className="text-xs text-[#8d90a0] mt-1">
+                    Gaps identified in your profile compared to the job description. Prioritized by impact.
+                  </p>
+                </div>
+                
+                {/* Search and Filters */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#8d90a0]" />
+                    <input
+                      type="text"
+                      placeholder="Search gaps..."
+                      value={skillSearchQuery}
+                      onChange={(e) => setSkillSearchQuery(e.target.value)}
+                      className="pl-8 pr-3 py-1.5 rounded-lg text-xs bg-[#0b1221] border border-[#1a2d4a] text-white placeholder-[#4a6080] focus:outline-none focus:border-[#2563eb] w-[180px] transition-all"
+                    />
+                  </div>
+                  
+                  {/* Impact Filter */}
+                  <select
+                    value={skillImpactFilter}
+                    onChange={(e) => setSkillImpactFilter(e.target.value as any)}
+                    className="px-2.5 py-1.5 rounded-lg text-xs bg-[#0b1221] border border-[#1a2d4a] text-white focus:outline-none focus:border-[#2563eb] transition-all cursor-pointer"
+                  >
+                    <option value="ALL">All Impacts</option>
+                    <option value="HIGH">High Impact</option>
+                    <option value="MEDIUM">Medium Impact</option>
+                    <option value="LOW">Low Impact</option>
+                  </select>
+                  
+                  {/* Category Filter */}
+                  {skillCategories.length > 0 && (
+                    <select
+                      value={skillCategoryFilter}
+                      onChange={(e) => setSkillCategoryFilter(e.target.value)}
+                      className="px-2.5 py-1.5 rounded-lg text-xs bg-[#0b1221] border border-[#1a2d4a] text-white focus:outline-none focus:border-[#2563eb] transition-all cursor-pointer"
                     >
-                      <div
-                        className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
-                        style={{ background: "#b4c5ff" }}
-                      />
-                      <span className="text-sm text-[#c3c6d7] leading-relaxed">
-                        {text}
-                      </span>
-                    </div>
-                  );
-                })}
+                      <option value="ALL">All Categories</option>
+                      {skillCategories.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
+              
+              {sortedFilteredSkills.length > 0 ? (
+                <div className="flex flex-col md:flex-row gap-5 items-stretch min-h-[400px]">
+                  {/* Left Column: List of Skills */}
+                  <div className="w-full md:w-5/12 flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1.5 custom-scrollbar">
+                    {sortedFilteredSkills.map((item, idx) => {
+                      const isSelected = selectedSkillName === item.skill;
+                      
+                      // Style tokens depending on impact
+                      let impactBg = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                      if (item.impact === "MEDIUM") {
+                        impactBg = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                      } else if (item.impact === "LOW") {
+                        impactBg = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                      }
+                      
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedSkillName(item.skill)}
+                          className={`w-full text-left rounded-xl border p-3.5 transition-all duration-200 select-none cursor-pointer ${
+                            isSelected 
+                              ? "bg-[#142040]/70 border-[#2563eb] shadow-md shadow-[#2563eb10]" 
+                              : "bg-[#111c32]/40 hover:bg-[#111c32]/95 border-[#1a2d4a]/60 hover:border-[#1a2d4a]/90"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2.5">
+                            <div className="min-w-0 flex-1">
+                              <span className="text-sm font-semibold text-white block truncate">
+                                {item.skill}
+                              </span>
+                              <span className="text-[10px] text-[#8d90a0] block mt-0.5">
+                                {item.category}
+                              </span>
+                            </div>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider flex-shrink-0 ${impactBg}`}>
+                              {item.impact}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#94a3b8] line-clamp-1 mt-2">
+                            {item.gapDescription}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Right Column: Detail View of Selected Skill */}
+                  <div className="w-full md:w-7/12 flex">
+                    {(() => {
+                      const selectedSkill = sortedFilteredSkills.find(s => s.skill === selectedSkillName);
+                      if (!selectedSkill) return null;
+                      
+                      let impactText = "High Priority Gap";
+                      let impactColor = "text-rose-400";
+                      let impactBg = "bg-rose-500/10 border-rose-500/25";
+                      if (selectedSkill.impact === "MEDIUM") {
+                        impactText = "Medium Priority Gap";
+                        impactColor = "text-amber-400";
+                        impactBg = "bg-amber-500/10 border-amber-500/25";
+                      } else if (selectedSkill.impact === "LOW") {
+                        impactText = "Low Priority Gap";
+                        impactColor = "text-blue-400";
+                        impactBg = "bg-blue-500/10 border-blue-500/25";
+                      }
+                      
+                      return (
+                        <div 
+                          className="w-full rounded-xl border p-5 flex flex-col bg-[#142040]/30 border-[#1a2d4a] animate-in fade-in duration-300"
+                        >
+                          {/* Title and Badges */}
+                          <div className="flex flex-wrap items-start justify-between gap-3 mb-4 pb-4 border-b border-[#1a2d4a]/50">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-[#b4c5ff] tracking-wider block mb-1">
+                                {selectedSkill.category}
+                              </span>
+                              <h3 className="text-lg font-bold text-white tracking-tight">
+                                {selectedSkill.skill}
+                              </h3>
+                            </div>
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${impactBg} ${impactColor}`}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                              {impactText}
+                            </div>
+                          </div>
+                          
+                          {/* Gap Analysis */}
+                          <div className="mb-4 flex-1">
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#f87171] font-semibold uppercase tracking-wider mb-2">
+                              <AlertTriangle size={13} />
+                              Gap Analysis
+                            </div>
+                            <p className="text-sm text-[#c3c6d7] leading-relaxed bg-[#0b1221]/50 p-4 rounded-xl border border-[#1a2d4a]/40">
+                              {selectedSkill.gapDescription}
+                            </p>
+                          </div>
+                          
+                          {/* Action Plan */}
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold uppercase tracking-wider mb-2">
+                              <Lightbulb size={13} className="text-emerald-400 animate-pulse" />
+                              Action Plan to Improve
+                            </div>
+                            <div className="text-sm text-[#e1e2ed] leading-relaxed bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/20 relative overflow-hidden">
+                              <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none">
+                                <Sparkles size={40} className="text-emerald-400" />
+                              </div>
+                              <p className="relative z-10 font-medium">
+                                {selectedSkill.recommendation}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-[#0b1221]/30 rounded-xl border border-dashed border-[#1a2d4a] p-6">
+                  <Info size={28} className="mx-auto text-[#4a6080] mb-3" />
+                  <p className="text-sm text-[#8d90a0]">
+                    No gaps found matching your filters.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

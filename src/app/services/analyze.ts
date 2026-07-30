@@ -60,7 +60,16 @@ async function analyzeResumeStructure(groq: Groq, text: string, jobDescription: 
           "potentialScore": number // Overall potential match score if all improvements are made, between 0-1 (e.g., 0.94).
         }
 
-        missingSkills and suggestions MUST always be arrays. If there are no values, return an empty array [].
+        missingSkills must be an array of objects representing the key skills, technologies, or qualifications required by the job description that are missing or weak in the resume (corresponds to "Areas to Improve"). Each object must have:
+        {
+          "skill": string, // Name of the missing skill/technology/qualification
+          "category": string, // Category (e.g., "Frontend", "Backend", "Cloud/DevOps", "Database", "Soft Skills", "Tools/Methodologies")
+          "gapDescription": string, // Brief explanation of the gap (e.g., "Resume lacks AWS cloud provider experience")
+          "recommendation": string, // Actionable advice (e.g., "Add a project using AWS S3/EC2, or list it in your skills section")
+          "impact": "HIGH" | "MEDIUM" | "LOW" // Impact of this missing skill on the match score
+        }
+
+        suggestions MUST always be arrays. If there are no values, return an empty array [].
         Use EXACT schema:
 
         {
@@ -71,7 +80,15 @@ async function analyzeResumeStructure(groq: Groq, text: string, jobDescription: 
           "skillsAnalysis": [
             { "label": string, "score": number, "strengths": string[], "gaps": string[] }
           ],
-          "missingSkills": string[],
+          "missingSkills": [
+            {
+              "skill": string,
+              "category": string,
+              "gapDescription": string,
+              "recommendation": string,
+              "impact": "HIGH" | "MEDIUM" | "LOW"
+            }
+          ],
           "missingKeywords": [
             {
               "keyword": string,

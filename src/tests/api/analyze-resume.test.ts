@@ -13,7 +13,15 @@ describe("analyzeResume service", () => {
     (analyzeResume as jest.Mock).mockResolvedValue(
       JSON.stringify({
         matchScore: 80,
-        missingSkills: ["Docker"],
+        missingSkills: [
+          {
+            skill: "Docker",
+            category: "Cloud/DevOps",
+            gapDescription: "No containerization technology found in resume",
+            recommendation: "Demonstrate Docker usage in a project description",
+            impact: "HIGH",
+          }
+        ],
         missingKeywords: ["Kubernetes"],
         suggestions: ["Learn Docker"],
         coverLetter: "Sample cover letter",
@@ -24,7 +32,7 @@ describe("analyzeResume service", () => {
     const parsed = JSON.parse(result);
 
     expect(parsed.matchScore).toBe(80);
-    expect(parsed.missingSkills).toContain("Docker");
+    expect(parsed.missingSkills[0].skill).toBe("Docker");
   });
 
   it("throws error when AI returns invalid JSON", async () => {
@@ -41,7 +49,15 @@ describe("analyzeResume service", () => {
     (analyzeResume as jest.Mock).mockResolvedValue(
       JSON.stringify({
         matchScore: 0,
-        missingSkills: ["Programming"],
+        missingSkills: [
+          {
+            skill: "Programming",
+            category: "General",
+            gapDescription: "No programming experience found",
+            recommendation: "Add programming languages to your resume",
+            impact: "HIGH",
+          }
+        ],
         missingKeywords: ["Web Development"],
         suggestions: ["Add technical skills"],
       }),
@@ -52,5 +68,6 @@ describe("analyzeResume service", () => {
 
     expect(parsed.matchScore).toBe(0);
     expect(parsed.missingSkills.length).toBeGreaterThan(0);
+    expect(parsed.missingSkills[0].skill).toBe("Programming");
   });
 });

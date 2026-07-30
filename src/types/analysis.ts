@@ -1,3 +1,11 @@
+export interface MissingSkill {
+  skill: string;
+  category: string;
+  gapDescription: string;
+  recommendation: string;
+  impact: "HIGH" | "MEDIUM" | "LOW";
+}
+
 export interface KeywordAnalysis {
   keyword: string;
   impact: "HIGH" | "MEDIUM" | "LOW";
@@ -29,7 +37,7 @@ export interface AnalysisResult {
     gaps?: string[];
   }[];
   missingKeywords: KeywordAnalysis[];
-  missingSkills: string[];
+  missingSkills: (string | MissingSkill)[];
   suggestions: string[];
   coverLetter?: string;
   jobDescription?: string;
