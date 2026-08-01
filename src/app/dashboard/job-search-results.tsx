@@ -47,9 +47,51 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
   const [searchExperience, setSearchExperience] = useState<string>("");
   const [isRemote, setIsRemote] = useState<boolean>(false);
 
+  // Date filter toggle state
+  const [dateFilter, setDateFilter] = useState<"recent" | "3days" | "7days" | "all">("all");
+
   useEffect(() => {
+    setDateFilter("all");
     fetchJobs(activeQuery);
   }, [activeQuery]);
+
+  const getFilteredJobs = () => {
+    let filtered = [...jobs];
+    
+    if (dateFilter === "recent") {
+      filtered = filtered.filter((job) => {
+        if (!job.job_posted_at_datetime_utc) return false;
+        const date = new Date(job.job_posted_at_datetime_utc);
+        const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+        return diffDays <= 1.5; // Last 36 hours (covers today/yesterday)
+      });
+    } else if (dateFilter === "3days") {
+      filtered = filtered.filter((job) => {
+        if (!job.job_posted_at_datetime_utc) return false;
+        const date = new Date(job.job_posted_at_datetime_utc);
+        const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+        return diffDays <= 3.5; // Last 3 days
+      });
+    } else if (dateFilter === "7days") {
+      filtered = filtered.filter((job) => {
+        if (!job.job_posted_at_datetime_utc) return false;
+        const date = new Date(job.job_posted_at_datetime_utc);
+        const diffDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+        return diffDays <= 7.5; // Last 7 days
+      });
+    }
+    
+    // Sort recent filters by newest date first
+    if (dateFilter !== "all") {
+      filtered.sort((a, b) => {
+        const dateA = a.job_posted_at_datetime_utc ? new Date(a.job_posted_at_datetime_utc).getTime() : 0;
+        const dateB = b.job_posted_at_datetime_utc ? new Date(b.job_posted_at_datetime_utc).getTime() : 0;
+        return dateB - dateA;
+      });
+    }
+    
+    return filtered;
+  };
 
   const fetchJobs = async (searchQuery: string) => {
     setLoading(true);
@@ -205,12 +247,26 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
         </form>
       </div>
 
-      <div className="pb-4 border-b border-[#1a2d4a] flex justify-between items-end">
+      <div className="pb-4 border-b border-[#1a2d4a] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <p className="text-sm font-medium text-slate-400">
           {loading
             ? "Searching active listings..."
-            : `Found ${jobs.length} open positions for "${activeQuery}"`}
+            : `Showing ${getFilteredJobs().length} of ${jobs.length} open positions for "${activeQuery}"`}
         </p>
+
+        {/* Date Filter Dropdown */}
+        {!loading && jobs.length > 0 && (
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as any)}
+            className="bg-[#0b1221] border border-[#1a2d4a] text-slate-300 text-sm rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-[#2563eb]/50 transition-colors"
+          >
+            <option value="all">All Matches</option>
+            <option value="recent">Most Recent</option>
+            <option value="3days">Past 3 Days</option>
+            <option value="7days">Past Week</option>
+          </select>
+        )}
       </div>
 
       {/* Results List */}
@@ -250,8 +306,16 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
               Try adjusting your search keywords or location.
             </p>
           </div>
+        ) : getFilteredJobs().length === 0 ? (
+          <div className="text-center py-20 bg-[#111c32]/50 border border-[#1a2d4a] rounded-xl">
+            <Briefcase size={48} className="mx-auto text-slate-600 mb-4" />
+            <h3 className="text-xl font-bold text-slate-300">No recent jobs found</h3>
+            <p className="text-slate-500 mt-2">
+              Try changing the filter to "All Matches" to see older job listings.
+            </p>
+          </div>
         ) : (
-          jobs.map((job) => (
+          getFilteredJobs().map((job) => (
             <div
               key={job.job_id || Math.random().toString()}
               className="bg-[#111c32] border border-[#1a2d4a] rounded-xl p-5 hover:border-[#2563eb]/40 transition-all duration-300 group shadow-sm hover:shadow-lg hover:shadow-blue-900/15 flex flex-col md:flex-row justify-between items-center md:items-start gap-4 relative overflow-hidden"
