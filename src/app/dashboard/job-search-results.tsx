@@ -256,16 +256,30 @@ export const JobSearchResults = ({ onBack, initialQuery = "" }: Props) => {
 
         {/* Date Filter Dropdown */}
         {!loading && jobs.length > 0 && (
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value as any)}
-            className="bg-[#0b1221] border border-[#1a2d4a] text-slate-300 text-sm rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-[#2563eb]/50 transition-colors"
-          >
-            <option value="all">All Matches</option>
-            <option value="recent">Most Recent</option>
-            <option value="3days">Past 3 Days</option>
-            <option value="7days">Past Week</option>
-          </select>
+          <div className="flex flex-col items-end">
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value as any)}
+              className="bg-[#0b1221] border border-[#1a2d4a] text-slate-300 text-sm rounded-md py-1.5 px-3 focus:outline-none focus:border-blue-500 cursor-pointer hover:border-[#2563eb]/50 transition-colors"
+            >
+              <option value="all">All Matches</option>
+              <option value="recent">Most Recent</option>
+              <option value="3days">Past 3 Days</option>
+              <option value="7days">Past Week</option>
+            </select>
+            {/* Fallback when filtered list empty */}
+            {dateFilter !== "all" && !loading && getFilteredJobs().length === 0 && (
+              <div className="flex items-center space-x-2 text-sm text-slate-400 mt-2">
+                <span>No jobs found for the selected filter.</span>
+                <button
+                  onClick={() => setDateFilter("all")}
+                  className="text-blue-400 hover:underline"
+                >
+                  Reset to All Matches
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
